@@ -244,7 +244,7 @@ export const EmergencyInfo: React.FC = () => {
                                 return (
                                     <div
                                         key={index}
-                                        className={`flex items-center justify-between p-3 rounded-lg border ${colors.border} ${colors.bg}`}
+                                        className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border gap-2 ${colors.border} ${colors.bg}`}
                                     >
                                         {/* 左側：圖示和文字 */}
                                         <div className="flex items-center gap-3">
@@ -263,8 +263,8 @@ export const EmergencyInfo: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        {/* 右側：電話號碼和複製按鈕 */}
-                                        <div className="flex items-center gap-2">
+                                        {/* Right side: phone + copy */}
+                                        <div className="flex items-center gap-2 pl-9 sm:pl-0">
                                             {/* 電話號碼（可點擊撥打） */}
                                             <a
                                                 href={`tel:${contact.number}`}

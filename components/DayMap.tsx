@@ -878,7 +878,7 @@ export const DayMap = React.memo<DayMapProps>(({ items, activeItemId, highlighte
                   {nearbyRestaurants.map((restaurant) => (
                     <a
                       key={restaurant.placeId}
-                      href={`https://www.google.com/maps/place/?q=place_id:${restaurant.placeId}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name + ' ' + (restaurant.address || ''))}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 p-2 rounded-lg bg-orange-50 hover:bg-orange-100 transition-colors group"

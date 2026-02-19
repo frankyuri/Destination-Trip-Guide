@@ -2,7 +2,7 @@
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="福岡 4 天 3 夜旅遊行程規劃指南，包含博多、門司港、太宰府天滿宮等景點，附地圖、交通資訊與美食推薦。" />
     <meta name="keywords" content="福岡旅遊, 博多, 門司港, 太宰府, 日本自由行, Fukuoka" />
     <title>福岡之旅 | 4天3夜完整行程指南</title>
@@ -131,6 +131,14 @@
       /* Eliminate 300ms tap delay on mobile */
       button, a, input, select, textarea, [role="button"] {
         touch-action: manipulation;
+      }
+
+      /* Safe-area padding for notched devices (iPhone X+) */
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
       }
 
       /* Custom Marker Style */

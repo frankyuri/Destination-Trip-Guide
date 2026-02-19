@@ -181,9 +181,13 @@ export const TimelineItem = React.memo<TimelineItemProps>(({
     }
 
     if (isActive) {
-      // Already active? Open maps
+      // Already active? Open maps — use coordinates for reliable mobile app navigation
       const query = encodeURIComponent(item.googleMapsQuery || item.address_jp);
-      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+      const hasCoords = item.coordinates && item.coordinates.lat && item.coordinates.lng;
+      const mapsUrl = hasCoords
+        ? `https://www.google.com/maps/search/?api=1&query=${query}&center=${item.coordinates.lat},${item.coordinates.lng}`
+        : `https://www.google.com/maps/search/?api=1&query=${query}`;
+      window.open(mapsUrl, '_blank');
     } else {
       // Not active? Set as active (focus map)
       onActive?.(item.id);
@@ -278,7 +282,7 @@ export const TimelineItem = React.memo<TimelineItemProps>(({
         )}
 
         {/* Header: Time & Title */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
+        <div className="flex flex-col gap-2 mb-3">
           <div className="flex items-start md:items-center gap-2 md:gap-3 flex-col md:flex-row w-full relative">
 
             {/* Time Input */}
@@ -341,8 +345,8 @@ export const TimelineItem = React.memo<TimelineItemProps>(({
 
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2 mt-2 md:mt-0">
+          {/* Action Buttons — scrollable on narrow mobile */}
+          <div className="flex items-center gap-1.5 md:gap-2 mt-1 md:mt-0 overflow-x-auto no-scrollbar flex-shrink-0">
             {isEditing && (
               <button
                 onClick={(e) => {
@@ -570,8 +574,8 @@ export const TimelineItem = React.memo<TimelineItemProps>(({
         </div>
 
         {/* Footer: Address */}
-        <div className="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-gray-100 flex items-center justify-between group/addr">
-          <div className="flex items-center gap-2 text-xs text-gray-400 overflow-hidden pr-2">
+        <div className="mt-4 md:mt-5 pt-3 md:pt-4 border-t border-gray-100 flex items-center justify-between group/addr gap-2">
+          <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0 flex-1">
             <MapPin size={12} className="flex-shrink-0" />
             <span className="truncate font-mono group-hover/addr:text-primary-600 transition-colors">{item.address_jp}</span>
           </div>

@@ -190,15 +190,47 @@ const App: React.FC = () => {
           <div className="absolute top-[30%] right-[20%] w-[100px] h-[100px] md:w-[200px] md:h-[200px] bg-primary-400 rounded-full blur-[60px] md:blur-[80px]"></div>
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto px-6 pt-12 md:pt-20 text-center">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 pt-14 md:pt-20 text-center">
 
-          {/* Top Controls: Edit Mode & Reset */}
-          <div className="absolute top-6 right-6 flex gap-2">
+          {/* Top Controls: Edit Mode & Reset — responsive row */}
+          <div className="absolute top-3 md:top-6 right-3 md:right-6 left-3 md:left-auto flex items-center justify-end gap-1.5 md:gap-2 flex-wrap z-30">
+            {/* Export / Import buttons (visible in edit mode) — inline with other controls */}
+            {isEditing && (
+              <>
+                <button
+                  onClick={() => exportItineraryJSON(itinerary, activePlan)}
+                  className="flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
+                >
+                  <Download size={10} /> JSON
+                </button>
+                <button
+                  onClick={() => exportAllICS(itinerary)}
+                  className="flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
+                >
+                  <Download size={10} /> ICS
+                </button>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
+                >
+                  <Upload size={10} /> {t('importJSON')}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".json"
+                  onChange={handleImport}
+                  className="hidden"
+                />
+                <div className="hidden md:block w-[1px] h-5 bg-white/20" />
+              </>
+            )}
+
             {/* Language Switcher */}
             <div className="relative">
               <button
                 onClick={() => setShowLangMenu(!showLangMenu)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-xs font-bold text-white hover:bg-white/20 transition-all"
+                className="flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] md:text-xs font-bold text-white hover:bg-white/20 transition-all"
               >
                 <Globe size={12} />
                 {LOCALE_LABELS[locale]}
@@ -225,14 +257,14 @@ const App: React.FC = () => {
             {isEditing && (
               <button
                 onClick={resetToDefault}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-red-500/20 backdrop-blur-md border border-red-400/30 text-xs font-bold text-white hover:bg-red-500/40 transition-all"
+                className="flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-red-500/20 backdrop-blur-md border border-red-400/30 text-[10px] md:text-xs font-bold text-white hover:bg-red-500/40 transition-all"
               >
                 <RotateCcw size={12} /> {t('resetDefault')}
               </button>
             )}
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full backdrop-blur-md border border-white/30 text-xs font-bold transition-all shadow-lg ${isEditing
+              className={`flex items-center gap-1.5 px-3 py-1 md:px-4 md:py-1.5 rounded-full backdrop-blur-md border border-white/30 text-[10px] md:text-xs font-bold transition-all shadow-lg ${isEditing
                 ? 'bg-yellow-400 text-yellow-900 hover:bg-yellow-300'
                 : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
@@ -241,37 +273,6 @@ const App: React.FC = () => {
               {isEditing ? t('exitEdit') : t('editMode')}
             </button>
           </div>
-
-          {/* Export / Import (visible in edit mode) */}
-          {isEditing && (
-            <div className="absolute top-6 left-6 flex gap-1.5 flex-wrap">
-              <button
-                onClick={() => exportItineraryJSON(itinerary, activePlan)}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
-              >
-                <Download size={11} /> JSON
-              </button>
-              <button
-                onClick={() => exportAllICS(itinerary)}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
-              >
-                <Download size={11} /> ICS
-              </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
-              >
-                <Upload size={11} /> {t('importJSON')}
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleImport}
-                className="hidden"
-              />
-            </div>
-          )}
 
           <div className="inline-flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-[10px] md:text-xs font-bold tracking-widest uppercase mb-4 md:mb-6 shadow-glow-pink">
             <Plane size={12} className="text-sakura-300" /> 2025 Fukuoka Trip
