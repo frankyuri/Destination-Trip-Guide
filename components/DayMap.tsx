@@ -194,8 +194,8 @@ export const DayMap = React.memo<DayMapProps>(({ items, activeItemId, highlighte
     const tileOptions = {
       attribution: TILE_LAYERS.Standard.attribution,
       updateWhenIdle: true,           // 只在停止移動時更新磚塊
-      updateWhenZooming: false,       // 縮放時不更新
-      keepBuffer: isMobile ? 1 : 2,   // 手機上減少快取（節省記憶體）
+      updateWhenZooming: false,       // 縮放時不更新（由 CSS blur 處理過渡）
+      keepBuffer: isMobile ? 2 : 4,   // 增加快取，減少縮放時空白
       maxZoom: 18,
       crossOrigin: true,
       // 手機上的額外優化
@@ -223,8 +223,8 @@ export const DayMap = React.memo<DayMapProps>(({ items, activeItemId, highlighte
       scrollWheelZoom: !isMobile,      // 手機上停用滾動縮放，避免卡住頁面
       // Remove preferCanvas to enable CSS animations on SVG paths
       // preferCanvas: true, 
-      fadeAnimation: false,            // 關閉淡入動畫
-      zoomAnimation: !isMobile,        // 手機上關閉縮放動畫
+      fadeAnimation: true,             // 啟用淡入動畫，新圖磚平滑出現
+      zoomAnimation: true,             // 啟用縮放動畫（觸發 blur 過渡效果）
       markerZoomAnimation: !isMobile,  // 手機上關閉標記動畫
       // 手機觸控優化
       tap: isMobile,                   // 啟用觸控點擊
@@ -245,6 +245,20 @@ export const DayMap = React.memo<DayMapProps>(({ items, activeItemId, highlighte
 
     // 2 秒後強制隱藏 loading（手機上縮短時間）
     setTimeout(() => setIsMapLoading(false), isMobile ? 2000 : 3000);
+
+    // ====== 滑動/拖曳時模糊效果 ======
+    let moveBlurTimeout: ReturnType<typeof setTimeout> | null = null;
+    const mapContainer = mapContainerRef.current;
+    map.on('movestart', () => {
+      if (moveBlurTimeout) { clearTimeout(moveBlurTimeout); moveBlurTimeout = null; }
+      mapContainer?.classList.add('map-moving');
+    });
+    map.on('moveend', () => {
+      // 延遲移除模糊，等新圖磚載入
+      moveBlurTimeout = setTimeout(() => {
+        mapContainer?.classList.remove('map-moving');
+      }, 150);
+    });
 
     // 縮放控制 (Move manually to adjust position if needed, but default is ok)
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -652,6 +666,31 @@ export const DayMap = React.memo<DayMapProps>(({ items, activeItemId, highlighte
         }
         .animate-dash {
           animation: dash 1s linear infinite;
+        }
+
+        /* ====== 縮放 & 滑動模糊過渡效果 ====== */
+        /* 縮放過程中模糊舊圖磚，避免看到空白 */
+        .leaflet-zoom-anim .leaflet-tile-pane {
+          filter: blur(4px);
+          transition: filter 0.2s ease-out;
+        }
+        /* 滑動/拖曳過程中模糊邊緣圖磚 */
+        .map-moving .leaflet-tile-pane {
+          filter: blur(3px);
+          transition: filter 0.15s ease-out;
+        }
+        /* 停止移動後恢復清晰 */
+        .leaflet-tile-pane {
+          filter: blur(0);
+          transition: filter 0.35s ease-out;
+        }
+        /* 圖磚容器的背景色，避免空白處是刺眼的白色 */
+        .leaflet-tile-container {
+          background: #e2e8f0;
+        }
+        /* 讓圖磚淡入更平滑 */
+        .leaflet-tile {
+          transition: opacity 0.3s ease-in-out !important;
         }
         
         /* 簡化的標記樣式（效能優化） */
