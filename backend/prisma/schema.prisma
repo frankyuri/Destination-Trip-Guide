@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 使用者
+// ==========================================
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String   @map("display_name") @db.VarChar(100)
+  locale       String   @default("zh-TW") @db.VarChar(10)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  trips    Trip[]
+  progress Progress[]
+
+  @@map("users")
+}
+
+// ==========================================
+// 旅程 (最上層容器)
+// ==========================================
+model Trip {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  name        String   @db.VarChar(200)
+  description String?  @db.Text
+  startDate   DateTime? @map("start_date") @db.Date
+  endDate     DateTime? @map("end_date") @db.Date
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plans ItineraryPlan[]
+
+  @@map("trips")
+}
+
+// ==========================================
+// 行程方案 (plan1 / plan2)
+// ==========================================
+model ItineraryPlan {
+  id        String   @id @default(uuid())
+  tripId    String   @map("trip_id")
+  planName  String   @map("plan_name") @db.VarChar(50)
+  isActive  Boolean  @default(false) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  trip Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  days ItineraryDay[]
+
+  @@map("itinerary_plans")
+}
+
+// ==========================================
+// 每日行程
+// ==========================================
+model ItineraryDay {
+  id        String   @id @default(uuid())
+  planId    String   @map("plan_id")
+  dateLabel String   @map("date_label") @db.VarChar(20)
+  dayTitle  String   @map("day_title") @db.VarChar(20)
+  theme     String   @db.VarChar(100)
+  focus     String   @db.VarChar(200)
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  plan  ItineraryPlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  items ItineraryItem[]
+
+  @@map("itinerary_days")
+}
+
+// ==========================================
+// 行程項目
+// ==========================================
+model ItineraryItem {
+  id              String   @id @default(uuid())
+  dayId           String   @map("day_id")
+  time            String   @db.VarChar(5)
+  title           String   @db.VarChar(200)
+  description     String?  @db.Text
+  addressJp       String?  @map("address_jp") @db.VarChar(300)
+  addressEn       String?  @map("address_en") @db.VarChar(300)
+  lat             Decimal  @db.Decimal(10, 7)
+  lng             Decimal  @db.Decimal(10, 7)
+  transportType   TransportType @default(WALK) @map("transport_type")
+  transportDetail String?  @map("transport_detail") @db.VarChar(200)
+  googleMapsQuery String?  @map("google_maps_query") @db.VarChar(300)
+  sortOrder       Int      @default(0) @map("sort_order")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  day              ItineraryDay     @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  recommendedFoods RecommendedFood[]
+  nearbySpots      NearbySpot[]
+  shoppingSpots    ShoppingSpot[]
+  progress         Progress[]
+
+  @@map("itinerary_items")
+}
+
+enum TransportType {
+  TAXI
+  WALK
+  TRAIN
+  BUS
+  SHIP
+  FLIGHT
+}
+
+// ==========================================
+// 推薦美食
+// ==========================================
+model RecommendedFood {
+  id        String @id @default(uuid())
+  itemId    String @map("item_id")
+  name      String @db.VarChar(200)
+  sortOrder Int    @default(0) @map("sort_order")
+
+  item ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("recommended_foods")
+}
+
+// ==========================================
+// 附近景點
+// ==========================================
+model NearbySpot {
+  id        String @id @default(uuid())
+  itemId    String @map("item_id")
+  name      String @db.VarChar(200)
+  sortOrder Int    @default(0) @map("sort_order")
+
+  item ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("nearby_spots")
+}
+
+// ==========================================
+// 購物點
+// ==========================================
+model ShoppingSpot {
+  id          String  @id @default(uuid())
+  itemId      String  @map("item_id")
+  name        String  @db.VarChar(200)
+  category    String  @db.VarChar(50)
+  description String? @db.Text
+  sortOrder   Int     @default(0) @map("sort_order")
+
+  item ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("shopping_spots")
+}
+
+// ==========================================
+// 進度追蹤
+// ==========================================
+model Progress {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  itemId      String    @map("item_id")
+  isCompleted Boolean   @default(false) @map("is_completed")
+  completedAt DateTime? @map("completed_at")
+
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
+  @@map("progress")
+}
