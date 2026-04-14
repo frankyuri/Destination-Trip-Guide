@@ -157,27 +157,26 @@ export const ProgressCheckbox: React.FC<ProgressTrackerProps & {
     return (
         <button
             onClick={(e) => {
-                // 防止事件冒泡（避免觸發父元素的點擊事件）
                 e.stopPropagation();
                 onToggle();
             }}
             className={`
-                flex items-center justify-center transition-all duration-300 
-                ${compact ? 'w-6 h-6' : 'w-8 h-8'} 
-                rounded-full border-2 
+                flex items-center justify-center transition-colors
+                ${compact ? 'w-6 h-6' : 'w-8 h-8'}
+                border
                 ${isCompleted
-                    ? 'bg-green-500 border-green-500 text-white scale-110'  // 已完成樣式
-                    : 'bg-white border-gray-200 text-gray-300 hover:border-green-300 hover:text-green-400'  // 未完成樣式
+                    ? 'bg-ink-900 border-ink-900 text-white'
+                    : 'bg-white border-ink-200 text-ink-300 hover:border-ink-900 hover:text-ink-900'
                 }
             `}
             title={isCompleted ? '標記為未完成' : '標記為已完成'}
+            aria-pressed={isCompleted}
+            aria-label={isCompleted ? '標記為未完成' : '標記為已完成'}
         >
             {isCompleted ? (
-                // 已完成：顯示打勾圖示
-                <CheckCircle2 size={compact ? 16 : 20} className="fill-current" />
+                <CheckCircle2 size={compact ? 14 : 18} strokeWidth={1.75} />
             ) : (
-                // 未完成：顯示空心圓圈
-                <Circle size={compact ? 16 : 20} />
+                <Circle size={compact ? 14 : 18} strokeWidth={1.5} />
             )}
         </button>
     );
@@ -209,43 +208,35 @@ export const DayProgressBar: React.FC<{
 
     return (
         <div className="w-full">
-            {/* 標籤區域：進度文字 */}
             {showLabel && (
-                <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium text-gray-500">
-                        行程進度
+                <div className="flex items-baseline justify-between mb-2">
+                    <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-ink-500">
+                        Progress
                     </span>
-                    <div className="flex items-center gap-1.5">
-                        {/* 全部完成時顯示獎盃動畫 */}
+                    <div className="flex items-baseline gap-2">
                         {isComplete && (
-                            <Trophy size={14} className="text-yellow-500 animate-bounce" />
+                            <Trophy size={12} className="text-vermillion self-center" strokeWidth={1.75} />
                         )}
-                        {/* 顯示 "已完成/總數" */}
-                        <span className={`text-xs font-bold ${isComplete ? 'text-green-600' : 'text-gray-600'}`}>
-                            {completed}/{total}
+                        <span className={`font-serif text-sm font-semibold ${isComplete ? 'text-vermillion' : 'text-ink-900'}`}>
+                            {completed}
                         </span>
+                        <span className="text-xs text-ink-300">/ {total}</span>
                     </div>
                 </div>
             )}
 
-            {/* 進度條容器 */}
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                {/* 進度條填充（使用 CSS transition 實現動畫） */}
+            {/* 細扁線條進度條 — 墨線風格 */}
+            <div className="h-[2px] bg-ink-100 overflow-hidden">
                 <div
-                    className={`h-full rounded-full transition-all duration-500 ease-out ${isComplete
-                        ? 'bg-gradient-to-r from-green-400 to-emerald-500'   // 完成時的漸層
-                        : 'bg-gradient-to-r from-primary-400 to-primary-500' // 進行中的漸層
-                        }`}
-                    style={{ width: `${percentage}%` }}  // 寬度由百分比控制
+                    className={`h-full transition-all duration-500 ease-out ${isComplete ? 'bg-vermillion' : 'bg-ink-900'}`}
+                    style={{ width: `${percentage}%` }}
                 />
             </div>
 
-            {/* 全部完成時的慶祝訊息 */}
             {isComplete && (
-                <div className="mt-2 flex items-center justify-center gap-1 text-xs text-green-600 font-medium animate-in fade-in">
-                    <Sparkles size={12} className="text-yellow-500" />
-                    今日行程完成！
-                    <Sparkles size={12} className="text-yellow-500" />
+                <div className="mt-3 flex items-center gap-2 text-[11px] tracking-wider uppercase text-vermillion font-medium animate-in fade-in">
+                    <Sparkles size={11} strokeWidth={1.75} />
+                    本日行程完走
                 </div>
             )}
         </div>

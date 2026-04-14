@@ -169,49 +169,50 @@ const App: React.FC = () => {
 
   if (loading || !activeDay) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-50">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-primary-500" size={40} />
-          <p className="text-slate-500 font-medium">{t('loading')}</p>
+          <Loader2 className="animate-spin text-ink-700" size={28} strokeWidth={1.5} />
+          <p className="text-ink-500 text-sm tracking-wide">{t('loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen font-sans bg-surface-50 text-slate-800 pb-20 md:pb-12">
+    <div className="min-h-screen font-sans bg-white text-ink-900 pb-20 md:pb-12">
 
-      {/* Immersive Hero Header */}
-      <header className="relative bg-gradient-to-br from-primary-800 via-primary-900 to-sakura-500/30 text-white overflow-hidden pb-8 md:pb-12 rounded-b-[32px] md:rounded-b-[40px] shadow-2xl z-20">
-        {/* ... Background Shapes ... */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
-          <div className="absolute top-[-20%] left-[-10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-sakura-400 rounded-full blur-[80px] md:blur-[100px] animate-pulse-slow"></div>
-          <div className="absolute bottom-[-20%] right-[-10%] w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-sunset-coral rounded-full blur-[80px] md:blur-[100px] animate-pulse-slow"></div>
-          <div className="absolute top-[30%] right-[20%] w-[100px] h-[100px] md:w-[200px] md:h-[200px] bg-primary-400 rounded-full blur-[60px] md:blur-[80px]"></div>
+      {/* Minimal Ink Header — sumi-e inspired */}
+      <header className="relative bg-white border-b border-ink-100 z-20">
+        {/* Vertical Japanese accent — decorative, hidden on mobile */}
+        <div
+          aria-hidden
+          className="hidden md:block absolute top-8 right-8 text-ink-100 font-serif text-[120px] leading-none select-none pointer-events-none"
+          style={{ writingMode: 'vertical-rl' }}
+        >
+          福岡
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 pt-14 md:pt-20 text-center">
+        <div className="relative max-w-5xl mx-auto px-5 md:px-8 pt-6 md:pt-10 pb-6 md:pb-10">
 
-          {/* Top Controls: Edit Mode & Reset — responsive row */}
-          <div className="absolute top-3 md:top-6 right-3 md:right-6 left-3 md:left-auto flex items-center justify-end gap-1.5 md:gap-2 flex-wrap z-30">
-            {/* Export / Import buttons (visible in edit mode) — inline with other controls */}
+          {/* Top Controls */}
+          <div className="flex items-center justify-end gap-1.5 flex-wrap mb-8 md:mb-12">
             {isEditing && (
               <>
                 <button
                   onClick={() => exportItineraryJSON(itinerary, activePlan)}
-                  className="flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
+                  className="flex items-center gap-1 px-2.5 py-1 border border-ink-200 text-[10px] font-medium text-ink-700 hover:border-ink-900 hover:text-ink-900 transition-colors"
                 >
                   <Download size={10} /> JSON
                 </button>
                 <button
                   onClick={() => exportAllICS(itinerary)}
-                  className="flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
+                  className="flex items-center gap-1 px-2.5 py-1 border border-ink-200 text-[10px] font-medium text-ink-700 hover:border-ink-900 hover:text-ink-900 transition-colors"
                 >
                   <Download size={10} /> ICS
                 </button>
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] font-bold text-white hover:bg-white/20 transition-all"
+                  className="flex items-center gap-1 px-2.5 py-1 border border-ink-200 text-[10px] font-medium text-ink-700 hover:border-ink-900 hover:text-ink-900 transition-colors"
                 >
                   <Upload size={10} /> {t('importJSON')}
                 </button>
@@ -222,7 +223,6 @@ const App: React.FC = () => {
                   onChange={handleImport}
                   className="hidden"
                 />
-                <div className="hidden md:block w-[1px] h-5 bg-white/20" />
               </>
             )}
 
@@ -230,7 +230,7 @@ const App: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setShowLangMenu(!showLangMenu)}
-                className="flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/30 text-[10px] md:text-xs font-bold text-white hover:bg-white/20 transition-all"
+                className="flex items-center gap-1.5 px-2.5 py-1 border border-ink-200 text-[11px] font-medium text-ink-700 hover:border-ink-900 hover:text-ink-900 transition-colors"
               >
                 <Globe size={12} />
                 {LOCALE_LABELS[locale]}
@@ -238,12 +238,12 @@ const App: React.FC = () => {
               {showLangMenu && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowLangMenu(false)} />
-                  <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50 min-w-[120px]">
+                  <div className="absolute right-0 top-full mt-1 bg-white border border-ink-200 py-1 z-50 min-w-[120px] shadow-sm">
                     {(Object.entries(LOCALE_LABELS) as [Locale, string][]).map(([key, label]) => (
                       <button
                         key={key}
                         onClick={() => { setLocale(key); setShowLangMenu(false); }}
-                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${locale === key ? 'bg-primary-50 text-primary-700 font-bold' : 'text-gray-700 hover:bg-gray-50'
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${locale === key ? 'bg-ink-50 text-ink-900 font-semibold' : 'text-ink-700 hover:bg-ink-50'
                           }`}
                       >
                         {label}
@@ -257,79 +257,90 @@ const App: React.FC = () => {
             {isEditing && (
               <button
                 onClick={resetToDefault}
-                className="flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-red-500/20 backdrop-blur-md border border-red-400/30 text-[10px] md:text-xs font-bold text-white hover:bg-red-500/40 transition-all"
+                className="flex items-center gap-1 px-2.5 py-1 border border-vermillion text-[11px] font-medium text-vermillion hover:bg-vermillion hover:text-white transition-colors"
               >
                 <RotateCcw size={12} /> {t('resetDefault')}
               </button>
             )}
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className={`flex items-center gap-1.5 px-3 py-1 md:px-4 md:py-1.5 rounded-full backdrop-blur-md border border-white/30 text-[10px] md:text-xs font-bold transition-all shadow-lg ${isEditing
-                ? 'bg-yellow-400 text-yellow-900 hover:bg-yellow-300'
-                : 'bg-white/10 text-white hover:bg-white/20'
+              className={`flex items-center gap-1.5 px-3 py-1 text-[11px] font-medium transition-colors border ${isEditing
+                ? 'bg-ink-900 border-ink-900 text-white hover:bg-ink-700'
+                : 'border-ink-200 text-ink-700 hover:border-ink-900 hover:text-ink-900'
                 }`}
             >
-              {isEditing ? <Save size={14} /> : <Pencil size={14} />}
+              {isEditing ? <Save size={12} /> : <Pencil size={12} />}
               {isEditing ? t('exitEdit') : t('editMode')}
             </button>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-[10px] md:text-xs font-bold tracking-widest uppercase mb-4 md:mb-6 shadow-glow-pink">
-            <Plane size={12} className="text-sakura-300" /> 2025 Fukuoka Trip
+          {/* Title block — asymmetric editorial */}
+          <div className="flex items-start gap-3 mb-2">
+            <span className="block w-10 h-[2px] bg-vermillion mt-4 md:mt-6 flex-shrink-0" aria-hidden />
+            <div>
+              <div className="flex items-center gap-2 text-[10px] md:text-[11px] font-medium tracking-[0.25em] uppercase text-ink-500 mb-3">
+                <Plane size={11} /> 2025 · Fukuoka · 4 Days
+              </div>
+              <h1 className="font-serif text-4xl md:text-7xl font-bold text-ink-900 leading-[1.05] tracking-tight">
+                {t('appTitle')}
+              </h1>
+            </div>
           </div>
 
-          <h1 className="text-3xl md:text-6xl font-black mb-3 md:mb-4 leading-tight tracking-tight">
-            {t('appTitle')}
-          </h1>
-          <p className="text-white/80 max-w-lg mx-auto text-xs md:text-lg font-light mb-4 px-4 leading-relaxed">
+          <p className="mt-5 md:mt-6 max-w-xl text-ink-500 text-sm md:text-base leading-relaxed pl-[3.25rem]">
             {t('appSubtitle')}
           </p>
 
-          {/* Plan Switcher */}
-          <div className="flex justify-center gap-2 mb-6 md:mb-8">
+          {/* Plan Switcher — text tabs with underline */}
+          <div className="flex gap-6 mt-8 md:mt-10 pl-[3.25rem] border-b border-ink-100">
             <button
               onClick={() => switchPlan('plan1')}
-              className={`px-4 py-2 rounded-full text-xs md:text-sm font-bold transition-all duration-300 ${activePlan === 'plan1'
-                ? 'bg-white text-primary-900 shadow-lg scale-105'
-                : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20'
+              className={`pb-3 text-xs md:text-sm font-medium tracking-wide transition-colors relative ${activePlan === 'plan1'
+                ? 'text-ink-900'
+                : 'text-ink-300 hover:text-ink-700'
                 }`}
             >
               {t('plan1')}
+              {activePlan === 'plan1' && <span className="absolute left-0 right-0 bottom-[-1px] h-[2px] bg-ink-900" />}
             </button>
             <button
               onClick={() => switchPlan('plan2')}
-              className={`px-4 py-2 rounded-full text-xs md:text-sm font-bold transition-all duration-300 ${activePlan === 'plan2'
-                ? 'bg-white text-primary-900 shadow-lg scale-105'
-                : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20'
+              className={`pb-3 text-xs md:text-sm font-medium tracking-wide transition-colors relative ${activePlan === 'plan2'
+                ? 'text-ink-900'
+                : 'text-ink-300 hover:text-ink-700'
                 }`}
             >
               {t('plan2')}
+              {activePlan === 'plan2' && <span className="absolute left-0 right-0 bottom-[-1px] h-[2px] bg-ink-900" />}
             </button>
           </div>
         </div>
 
-        {/* Day Selector */}
-        <div className="relative z-20 px-4 max-w-5xl mx-auto mt-2 md:mt-4">
-          <div className="flex gap-3 md:justify-center overflow-x-auto no-scrollbar pb-2 px-2 snap-x snap-mandatory">
+        {/* Day Selector — numbered editorial cards */}
+        <div className="relative max-w-5xl mx-auto px-5 md:px-8 pb-6 md:pb-8">
+          <div className="flex gap-0 overflow-x-auto no-scrollbar snap-x snap-mandatory border-t border-ink-100">
             {itinerary.map((day, index) => {
               const isActive = activeDayIndex === index;
               return (
                 <button
                   key={day.dayTitle}
                   onClick={() => setActiveDayIndex(index)}
-                  className={`snap-center flex-shrink-0 group relative flex flex-col items-start justify-center p-3 md:p-4 min-w-[100px] md:min-w-[120px] rounded-2xl border transition-all duration-300 ${isActive
-                    ? 'bg-white text-primary-900 shadow-float scale-105 border-sakura-200'
-                    : 'bg-white/10 text-white border-white/10 hover:bg-white/20 hover:border-white/30'
+                  className={`snap-start flex-shrink-0 group relative flex flex-col items-start justify-center py-4 px-5 md:px-6 min-w-[130px] md:min-w-[150px] border-r border-ink-100 transition-colors ${isActive
+                    ? 'bg-ink-900 text-white'
+                    : 'bg-white text-ink-700 hover:bg-ink-50'
                     }`}
                 >
-                  <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isActive ? 'text-sakura-500' : 'text-sakura-200'}`}>
+                  <span className={`font-serif text-xs font-medium tracking-wider mb-1 ${isActive ? 'text-vermillion-100' : 'text-ink-300'}`}>
+                    DAY 0{index + 1}
+                  </span>
+                  <span className={`text-[11px] mb-1.5 font-mono ${isActive ? 'text-white/60' : 'text-ink-500'}`}>
                     {day.date}
                   </span>
-                  <span className={`text-lg md:text-xl font-bold ${isActive ? 'text-primary-800' : 'text-white'}`}>
+                  <span className={`text-sm md:text-base font-semibold ${isActive ? 'text-white' : 'text-ink-900'}`}>
                     {day.dayTitle}
                   </span>
                   {isActive && (
-                    <div className="absolute top-3 right-3 w-2 h-2 bg-gradient-to-r from-sakura-400 to-sunset-coral rounded-full animate-pulse shadow-glow-pink"></div>
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-vermillion" aria-hidden />
                   )}
                 </button>
               );
@@ -339,12 +350,10 @@ const App: React.FC = () => {
             {isEditing && (
               <button
                 onClick={addDay}
-                className="snap-center flex-shrink-0 flex items-center justify-center p-3 md:p-4 min-w-[60px] md:min-w-[80px] rounded-2xl border border-white/20 bg-white/5 hover:bg-white/20 text-white/60 hover:text-white transition-all group"
+                className="snap-start flex-shrink-0 flex items-center justify-center py-4 px-5 min-w-[80px] border-r border-ink-100 text-ink-300 hover:text-ink-900 hover:bg-ink-50 transition-colors"
                 title={t('addDay')}
               >
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-dashed border-current flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Plus size={20} />
-                </div>
+                <Plus size={18} />
               </button>
             )}
           </div>
@@ -354,20 +363,24 @@ const App: React.FC = () => {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 mt-6 md:mt-12">
 
-        {/* Day Context Title & Weather */}
-        <div className="mb-6 md:mb-8 flex flex-col items-center justify-center relative gap-4 md:gap-6">
-          <div className="text-center px-2">
-            <h2 className="text-xl md:text-3xl font-bold text-slate-800 flex flex-wrap items-center justify-center gap-2 md:gap-3 leading-snug">
-              <span className="hidden md:block w-8 h-1 bg-gradient-to-r from-primary-500 to-primary-300 rounded-full"></span>
+        {/* Day Context Title & Weather — editorial */}
+        <div className="mb-8 md:mb-12 flex flex-col gap-5 md:gap-6">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="block w-6 h-[1px] bg-vermillion" aria-hidden />
+              <span className="text-[10px] md:text-[11px] font-medium tracking-[0.25em] uppercase text-ink-500">
+                Itinerary · Day {activeDayIndex + 1}
+              </span>
+            </div>
+            <h2 className="font-serif text-2xl md:text-4xl font-bold text-ink-900 leading-tight">
               {activeDay.theme}
-              <span className="hidden md:block w-8 h-1 bg-gradient-to-l from-primary-500 to-primary-300 rounded-full"></span>
             </h2>
-            <p className="mt-2 md:mt-3 text-xs md:text-base text-slate-500 font-medium bg-white inline-block px-3 py-1.5 rounded-full shadow-sm border border-slate-100 max-w-full truncate">
+            <p className="mt-2 text-sm md:text-base text-ink-500 leading-relaxed">
               {activeDay.focus}
             </p>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap justify-center">
+          <div className="flex items-center gap-3 flex-wrap">
             <WeatherWidget date={activeDay.date} />
             <ShareButton dayIndex={activeDayIndex} dayTitle={activeDay.dayTitle} />
           </div>
@@ -419,9 +432,9 @@ const App: React.FC = () => {
               {isEditing && (
                 <button
                   onClick={() => addItem(activeDay.date)}
-                  className="w-full py-4 mt-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-400 font-bold flex items-center justify-center gap-2 hover:border-primary-400 hover:text-primary-500 hover:bg-primary-50 transition-all"
+                  className="w-full py-4 mt-4 border border-dashed border-ink-200 text-ink-500 text-sm font-medium flex items-center justify-center gap-2 hover:border-ink-900 hover:text-ink-900 transition-colors"
                 >
-                  <Plus size={20} />
+                  <Plus size={16} />
                   {t('addItem')}
                 </button>
               )}
@@ -473,30 +486,30 @@ const App: React.FC = () => {
 
       {/* Mobile Floating Action Button (FAB) */}
       {/* Mobile Bottom Navigation Bar */}
-      <div className="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-lg border-t border-gray-200 pb-safe lg:hidden transition-transform duration-300">
+      <div className="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-ink-100 pb-safe lg:hidden">
         <div className="flex items-center justify-around p-2">
           <button
             onClick={() => setMobileViewMode('list')}
-            className={`flex flex-col items-center gap-1 p-2 rounded-xl w-24 transition-all ${mobileViewMode === 'list'
-              ? 'text-primary-600 bg-primary-50'
-              : 'text-gray-400 hover:text-gray-600'
+            className={`flex flex-col items-center gap-1 p-2 w-24 transition-colors ${mobileViewMode === 'list'
+              ? 'text-ink-900'
+              : 'text-ink-300 hover:text-ink-700'
               }`}
           >
-            <List size={22} strokeWidth={mobileViewMode === 'list' ? 2.5 : 2} />
-            <span className="text-[10px] font-bold">{t('listView')}</span>
+            <List size={20} strokeWidth={1.75} />
+            <span className="text-[10px] font-medium tracking-wider uppercase">{t('listView')}</span>
           </button>
 
-          <div className="w-[1px] h-8 bg-gray-100"></div>
+          <div className="w-[1px] h-8 bg-ink-100"></div>
 
           <button
             onClick={() => setMobileViewMode('map')}
-            className={`flex flex-col items-center gap-1 p-2 rounded-xl w-24 transition-all ${mobileViewMode === 'map'
-              ? 'text-primary-600 bg-primary-50'
-              : 'text-gray-400 hover:text-gray-600'
+            className={`flex flex-col items-center gap-1 p-2 w-24 transition-colors ${mobileViewMode === 'map'
+              ? 'text-ink-900'
+              : 'text-ink-300 hover:text-ink-700'
               }`}
           >
-            <MapIcon size={22} strokeWidth={mobileViewMode === 'map' ? 2.5 : 2} />
-            <span className="text-[10px] font-bold">{t('mapView')}</span>
+            <MapIcon size={20} strokeWidth={1.75} />
+            <span className="text-[10px] font-medium tracking-wider uppercase">{t('mapView')}</span>
           </button>
         </div>
       </div>
@@ -504,11 +517,11 @@ const App: React.FC = () => {
 
       {/* DB Error Toast */}
       {dbError && (
-        <div className="fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300 max-w-sm">
+        <div className="fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-vermillion text-white px-5 py-3 shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300 max-w-sm">
           <span className="text-sm font-medium">{dbError}</span>
           <button
             onClick={() => setDbError(null)}
-            className="text-red-200 hover:text-white transition-colors flex-shrink-0"
+            className="text-white/70 hover:text-white transition-colors flex-shrink-0"
           >
             ✕
           </button>
@@ -517,7 +530,7 @@ const App: React.FC = () => {
 
       {/* Success Toast */}
       {successToast && (
-        <div className="fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-ink-900 text-white px-5 py-3 shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4 duration-300">
           {successToast}
         </div>
       )}
