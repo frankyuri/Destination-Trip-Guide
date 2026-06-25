@@ -1,183 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import { RefreshCw, TrendingUp, TrendingDown } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 
 interface ExchangeRate {
-    rate: number;
-    timestamp: number;
+  rate: number;
+  timestamp: number;
+  approximate?: boolean;
 }
 
+const CACHE_KEY = 'exchange_rate_twd_jpy';
+const FALLBACK_RATE = 4.7;
+
+const readCachedRate = (): ExchangeRate | null => {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<ExchangeRate>;
+    if (typeof parsed.rate !== 'number' || !Number.isFinite(parsed.rate) || typeof parsed.timestamp !== 'number') {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    return parsed as ExchangeRate;
+  } catch {
+    localStorage.removeItem(CACHE_KEY);
+    return null;
+  }
+};
+
+const fetchExchangeRate = async (signal?: AbortSignal): Promise<ExchangeRate> => {
+  const response = await fetch('https://api.exchangerate-api.com/v4/latest/TWD', { signal });
+  if (!response.ok) throw new Error(`Exchange API returned ${response.status}`);
+  const data = (await response.json()) as { rates?: { JPY?: number } };
+  const rate = data.rates?.JPY;
+  if (typeof rate !== 'number' || !Number.isFinite(rate)) throw new Error('Exchange API response is invalid');
+  const result = { rate, timestamp: Date.now() };
+  localStorage.setItem(CACHE_KEY, JSON.stringify(result));
+  return result;
+};
+
+const normalizeAmount = (value: string): string => value.replace(/[^\d.]/g, '');
+const formatAmount = (value: number): string => Math.round(value).toLocaleString('zh-TW');
+
 export const CurrencyWidget: React.FC = () => {
-    const [rate, setRate] = useState<ExchangeRate | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [twdAmount, setTwdAmount] = useState<string>('1000');
-    const [jpyAmount, setJpyAmount] = useState<string>('');
-    const [direction, setDirection] = useState<'twd-to-jpy' | 'jpy-to-twd'>('twd-to-jpy');
+  const [rate, setRate] = useState<ExchangeRate | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [twdAmount, setTwdAmount] = useState('1000');
+  const [jpyAmount, setJpyAmount] = useState('');
+  const [error, setError] = useState(false);
 
-    useEffect(() => {
-        const fetchRate = async () => {
-            // Check cache first
-            const cached = localStorage.getItem('exchange_rate_twd_jpy');
-            if (cached) {
-                const parsed = JSON.parse(cached) as ExchangeRate;
-                // Use cache if less than 1 hour old
-                if (Date.now() - parsed.timestamp < 60 * 60 * 1000) {
-                    setRate(parsed);
-                    calculateConversion(parsed.rate, 'twd-to-jpy', twdAmount);
-                    setLoading(false);
-                    return;
-                }
-            }
+  const applyRate = (nextRate: ExchangeRate, sourceAmount = twdAmount) => {
+    setRate(nextRate);
+    setJpyAmount(formatAmount((Number(sourceAmount.replace(/,/g, '')) || 0) * nextRate.rate));
+  };
 
-            try {
-                // Using exchangerate-api.com free tier (or fallback to approximate rate)
-                const response = await fetch('https://api.exchangerate-api.com/v4/latest/TWD');
-                if (response.ok) {
-                    const data = await response.json();
-                    const jpyRate = data.rates.JPY; // How many JPY per 1 TWD
-                    const newRate: ExchangeRate = { rate: jpyRate, timestamp: Date.now() };
-                    localStorage.setItem('exchange_rate_twd_jpy', JSON.stringify(newRate));
-                    setRate(newRate);
-                    calculateConversion(jpyRate, 'twd-to-jpy', twdAmount);
-                } else {
-                    throw new Error('API failed');
-                }
-            } catch {
-                // Fallback to approximate rate
-                const fallbackRate: ExchangeRate = { rate: 4.7, timestamp: Date.now() };
-                setRate(fallbackRate);
-                calculateConversion(fallbackRate.rate, 'twd-to-jpy', twdAmount);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchRate();
-    }, []);
-
-    const calculateConversion = (currentRate: number, dir: 'twd-to-jpy' | 'jpy-to-twd', amount: string) => {
-        const numAmount = parseFloat(amount) || 0;
-        if (dir === 'twd-to-jpy') {
-            setJpyAmount(Math.round(numAmount * currentRate).toLocaleString());
-        } else {
-            setTwdAmount(Math.round(numAmount / currentRate).toLocaleString());
-        }
-    };
-
-    const handleTwdChange = (value: string) => {
-        const cleanValue = value.replace(/,/g, '');
-        setTwdAmount(cleanValue);
-        if (rate) {
-            calculateConversion(rate.rate, 'twd-to-jpy', cleanValue);
-        }
-        setDirection('twd-to-jpy');
-    };
-
-    const handleJpyChange = (value: string) => {
-        const cleanValue = value.replace(/,/g, '');
-        setJpyAmount(cleanValue);
-        if (rate) {
-            const numAmount = parseFloat(cleanValue) || 0;
-            setTwdAmount(Math.round(numAmount / rate.rate).toLocaleString());
-        }
-        setDirection('jpy-to-twd');
-    };
-
-    const refreshRate = async () => {
-        setLoading(true);
-        localStorage.removeItem('exchange_rate_twd_jpy');
-        try {
-            const response = await fetch('https://api.exchangerate-api.com/v4/latest/TWD');
-            if (response.ok) {
-                const data = await response.json();
-                const jpyRate = data.rates.JPY;
-                const newRate: ExchangeRate = { rate: jpyRate, timestamp: Date.now() };
-                localStorage.setItem('exchange_rate_twd_jpy', JSON.stringify(newRate));
-                setRate(newRate);
-                if (direction === 'twd-to-jpy') {
-                    calculateConversion(jpyRate, 'twd-to-jpy', twdAmount);
-                } else {
-                    calculateConversion(jpyRate, 'jpy-to-twd', jpyAmount);
-                }
-            }
-        } catch {
-            // Keep existing rate on error
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (loading && !rate) {
-        return (
-            <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm animate-pulse">
-                <div className="h-20 bg-gray-100 rounded"></div>
-            </div>
-        );
+  useEffect(() => {
+    const controller = new AbortController();
+    const cached = readCachedRate();
+    if (cached && Date.now() - cached.timestamp < 60 * 60_000) {
+      applyRate(cached);
+      setLoading(false);
+      return () => controller.abort();
     }
 
-    return (
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-100 p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-emerald-800 flex items-center gap-2">
-                    💴 匯率換算
-                </h3>
-                <button
-                    onClick={refreshRate}
-                    disabled={loading}
-                    className="p-1.5 rounded-full hover:bg-emerald-100 transition-colors text-emerald-600"
-                    title="更新匯率"
-                >
-                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                </button>
-            </div>
+    fetchExchangeRate(controller.signal)
+      .then(applyRate)
+      .catch((requestError: unknown) => {
+        if (requestError instanceof DOMException && requestError.name === 'AbortError') return;
+        console.error('Exchange rate fetch failed:', requestError);
+        setError(true);
+        applyRate({ rate: FALLBACK_RATE, timestamp: Date.now(), approximate: true });
+      })
+      .finally(() => setLoading(false));
 
-            <div className="space-y-3">
-                {/* TWD Input */}
-                <div className="flex items-center gap-2 bg-white rounded-lg p-2 border border-emerald-100">
-                    <span className="text-lg">🇹🇼</span>
-                    <input
-                        type="text"
-                        inputMode="numeric"
-                        value={twdAmount}
-                        onChange={(e) => handleTwdChange(e.target.value)}
-                        className="flex-1 text-right text-lg font-bold text-gray-800 bg-transparent outline-none w-20"
-                        placeholder="0"
-                    />
-                    <span className="text-sm font-medium text-gray-500">TWD</span>
-                </div>
+    return () => controller.abort();
+  }, []);
 
-                {/* Direction Indicator */}
-                <div className="flex justify-center">
-                    {direction === 'twd-to-jpy' ? (
-                        <TrendingDown size={20} className="text-emerald-500" />
-                    ) : (
-                        <TrendingUp size={20} className="text-emerald-500" />
-                    )}
-                </div>
+  const refreshRate = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const nextRate = await fetchExchangeRate();
+      applyRate(nextRate);
+    } catch (requestError) {
+      console.error('Exchange rate refresh failed:', requestError);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                {/* JPY Input */}
-                <div className="flex items-center gap-2 bg-white rounded-lg p-2 border border-emerald-100">
-                    <span className="text-lg">🇯🇵</span>
-                    <input
-                        type="text"
-                        inputMode="numeric"
-                        value={jpyAmount}
-                        onChange={(e) => handleJpyChange(e.target.value)}
-                        className="flex-1 text-right text-lg font-bold text-gray-800 bg-transparent outline-none w-20"
-                        placeholder="0"
-                    />
-                    <span className="text-sm font-medium text-gray-500">JPY</span>
-                </div>
-            </div>
+  const handleTwdChange = (value: string) => {
+    const cleanValue = normalizeAmount(value);
+    setTwdAmount(cleanValue);
+    if (rate) setJpyAmount(formatAmount((Number(cleanValue) || 0) * rate.rate));
+  };
 
-            {/* Rate Info */}
-            {rate && (
-                <div className="mt-3 pt-3 border-t border-emerald-100 text-xs text-emerald-600 text-center">
-                    1 TWD ≈ {rate.rate.toFixed(2)} JPY
-                    <span className="text-emerald-400 ml-2">
-                        (更新於 {new Date(rate.timestamp).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })})
-                    </span>
-                </div>
-            )}
-        </div>
-    );
+  const handleJpyChange = (value: string) => {
+    const cleanValue = normalizeAmount(value);
+    setJpyAmount(cleanValue);
+    if (rate) setTwdAmount(formatAmount((Number(cleanValue) || 0) / rate.rate));
+  };
+
+  if (loading && !rate) {
+    return <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm" role="status">匯率載入中…</div>;
+  }
+
+  return (
+    <section className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 p-4 shadow-sm" aria-labelledby="currency-title">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 id="currency-title" className="flex items-center gap-2 text-sm font-bold text-emerald-800">💴 匯率換算</h3>
+        <button type="button" onClick={refreshRate} disabled={loading} className="min-h-11 min-w-11 rounded-full text-emerald-600 transition-colors hover:bg-emerald-100 disabled:opacity-50" aria-label="更新匯率">
+          <RefreshCw size={14} className={`mx-auto ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        <label className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-white p-2">
+          <span aria-hidden="true">🇹🇼</span>
+          <span className="sr-only">新台幣金額</span>
+          <input type="text" inputMode="decimal" value={twdAmount} onChange={(event) => handleTwdChange(event.target.value)} className="w-20 flex-1 bg-transparent text-right text-lg font-bold text-gray-800 outline-none" />
+          <span className="text-sm font-medium text-gray-500">TWD</span>
+        </label>
+        <label className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-white p-2">
+          <span aria-hidden="true">🇯🇵</span>
+          <span className="sr-only">日圓金額</span>
+          <input type="text" inputMode="decimal" value={jpyAmount} onChange={(event) => handleJpyChange(event.target.value)} className="w-20 flex-1 bg-transparent text-right text-lg font-bold text-gray-800 outline-none" />
+          <span className="text-sm font-medium text-gray-500">JPY</span>
+        </label>
+      </div>
+
+      {rate && (
+        <p className="mt-3 border-t border-emerald-100 pt-3 text-center text-xs text-emerald-700">
+          1 TWD ≈ {rate.rate.toFixed(2)} JPY
+          {rate.approximate && <span className="ml-2 font-bold text-amber-700">離線估算值</span>}
+          {!rate.approximate && <span className="ml-2 text-emerald-500">（{new Date(rate.timestamp).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })} 更新）</span>}
+        </p>
+      )}
+      {error && <p className="mt-2 text-center text-xs text-amber-700" role="status">即時匯率暫時無法更新</p>}
+    </section>
+  );
 };

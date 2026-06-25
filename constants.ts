@@ -1,29 +1,351 @@
-/**
- * constants.ts - 應用程式常數
- * 
- * 行程資料已模組化至 data/itinerary/ 目錄下的 JSON 檔案
- * 使用 loadItineraryData() 載入資料
- */
-
-import { DayItinerary } from './types';
-import { loadItineraryData, loadItineraryData2 } from './utils/dataLoader';
+import { DayItinerary, TransportType } from './types';
 
 /**
  * ITINERARY DATA SOURCE
  * 
- * 方案一資料來源 JSON 檔案：
- * - data/itinerary/day1.json ~ day4.json
- * 
- * 方案二（備選二）資料來源 JSON 檔案：
- * - data/itinerary2/day1.json ~ day4.json
- * 
- * 若要更新行程資料，請直接編輯對應的 JSON 檔案
+ * To update the itinerary:
+ * 1. Ensure your data matches the DayItinerary interface in types.ts
+ * 2. Replace the content of this array.
+ * 3. Dates should be in "M/D" format for the Weather Widget to detect automatically.
  */
-export const ITINERARY_DATA: DayItinerary[] = loadItineraryData();
 
-/** Lazy-loaded Plan 2 data — only parsed when first accessed */
-let _plan2: DayItinerary[] | null = null;
-export const getItineraryData2 = (): DayItinerary[] => {
-  if (!_plan2) _plan2 = loadItineraryData2();
-  return _plan2;
-};
+export const ITINERARY_DATA: DayItinerary[] = [
+  {
+    isoDate: '2026-02-27',
+    date: '2/27 (五)',
+    dayTitle: 'Day 1',
+    theme: '地標全制霸 & 鋼彈',
+    focus: '紅眼班機落地 → 寄放行李 → 醒腦美景 → 鋼彈燈光秀',
+    items: [
+      {
+        id: 'd1-1',
+        time: '07:30',
+        title: '前往飯店寄放行李',
+        description: 'Hotel WBF Grande Hakata 外觀',
+        address_jp: '福岡市博多区博多駅南 2-2-5',
+        address_en: 'Hotel WBF Grande Hakata',
+        coordinates: { lat: 33.5855, lng: 130.4265 },
+        transportType: TransportType.TAXI,
+        transportDetail: '機場直達 (約 ¥1500)',
+        googleMapsQuery: 'Hotel WBF Grande Hakata', 
+        recommendedFood: ['便利商店炸雞 (全家/Lawson)', '博多站 Il Forno del Mignon 可頌'],
+        nearbySpots: ['博多車站', '筑紫口'],
+        shoppingSideQuests: [
+          { name: 'Yodobashi Camera 博多', category: '電器/扭蛋', description: '台灣人買電器首選，扭蛋機超多' },
+          { name: '博多阪急百貨', category: '精品/伴手禮', description: 'BaoBao包、Albion健康水' }
+        ]
+      },
+      {
+        id: 'd1-2',
+        time: '09:00',
+        title: '大濠公園 & 舞鶴公園',
+        description: '湖景與福岡城跡天守台',
+        address_jp: '福岡市中央区大濠公園 1-2',
+        address_en: 'Ohori Park',
+        coordinates: { lat: 33.5862, lng: 130.3762 },
+        transportType: TransportType.TAXI,
+        transportDetail: '從飯店出發 (約 15 分)',
+        googleMapsQuery: '大濠公園',
+        recommendedFood: ['Royal Garden Cafe (湖畔早餐)', '星巴克 大濠公園店', 'La Brioche 麵包'],
+        nearbySpots: ['福岡市美術館', '日本庭園', '福岡城跡'],
+      },
+      {
+        id: 'd1-3',
+        time: '12:00',
+        title: '福岡塔 & 海濱百道',
+        description: '日本最高海濱塔與人工沙灘',
+        address_jp: '福岡市早良区百道浜 2-3-26',
+        address_en: 'Fukuoka Tower',
+        coordinates: { lat: 33.5932, lng: 130.3515 },
+        transportType: TransportType.BUS,
+        transportDetail: '大濠公園搭乘 15/77 號公車',
+        googleMapsQuery: '福岡タワー',
+        recommendedFood: ['Blue Seal 冰淇淋', 'The Beach (沙灘咖啡廳)', '海濱 BBQ'],
+        nearbySpots: ['福岡 PayPay 巨蛋', 'Mark Is 福岡百道'],
+        shoppingSideQuests: [
+          { name: 'Mark Is 福岡百道', category: '商場', description: 'Uniqlo, GU, Seria (百元店) 大型店' },
+        ]
+      },
+      {
+        id: 'd1-4',
+        time: '15:00',
+        title: '飯店 Check-in & 梳洗',
+        description: '享受飯店大浴場與短暫補眠',
+        address_jp: '福岡市博多区博多駅南 2-2-5',
+        address_en: 'Hotel WBF Grande Hakata',
+        coordinates: { lat: 33.5855, lng: 130.4265 },
+        transportType: TransportType.TAXI,
+        transportDetail: '搭計程車回飯店休息',
+        googleMapsQuery: 'Hotel WBF Grande Hakata',
+        recommendedFood: ['飯店迎賓飲料', '附近便利商店甜點'],
+        nearbySpots: ['博多站筑紫口', '東比惠公園'],
+      },
+      {
+        id: 'd1-5',
+        time: '16:30',
+        title: '住吉神社',
+        description: '日本三大住吉之一，紅色本殿',
+        address_jp: '福岡市博多区住吉 3-1-51',
+        address_en: 'Sumiyoshi Shrine',
+        coordinates: { lat: 33.5857, lng: 130.4132 },
+        transportType: TransportType.WALK,
+        transportDetail: '從飯店步行約 8-10 分',
+        googleMapsQuery: '筑前國一之宮 住吉神社',
+        recommendedFood: ['博多拉麵 ShinShin 住吉店', '烏龍麵平 (Udon Taira)'],
+        nearbySpots: ['樂水園 (日本庭園)', '柳橋連合市場 (博多的廚房)'],
+      },
+      {
+        id: 'd1-6',
+        time: '19:00',
+        title: 'LaLaport 福岡',
+        description: '1:1 巨型鋼彈 RX-93ff 立像',
+        address_jp: '福岡市博多区那珂 6-23-1',
+        address_en: 'LaLaport Fukuoka',
+        coordinates: { lat: 33.5653, lng: 130.4357 },
+        transportType: TransportType.TAXI,
+        transportDetail: '計程車直達 (約 10 分)',
+        googleMapsQuery: '三井ショッピングパーク ららぽーと福岡',
+        recommendedFood: ['利久牛舌 (美食街)', 'Gundam Park 咖啡', 'GODIVA 甜點'],
+        nearbySpots: ['KidZania 福岡'],
+        shoppingSideQuests: [
+          { name: 'LOPIA 超市', category: '超市', description: '必逛！水果、零食、和牛超便宜' },
+          { name: 'Standard Products', category: '雜貨', description: '大創的高級版，質感很好' },
+          { name: 'Gundam Side-F', category: '模型', description: '限定鋼彈模型' }
+        ]
+      },
+    ],
+  },
+  {
+    isoDate: '2026-02-28',
+    date: '2/28 (六)',
+    dayTitle: 'Day 2',
+    theme: '跨海吃壽司 & 懷舊港口',
+    focus: '【週末限定】唐戶市場壽司馬拉松 + 門司港散策',
+    items: [
+      {
+        id: 'd2-1',
+        time: '08:30',
+        title: '移動：博多 → 門司港',
+        description: '鐵道旅行與沿途風景',
+        address_jp: '福岡県北九州市門司区西海岸1-5-31',
+        address_en: 'Mojiko Station',
+        coordinates: { lat: 33.9442, lng: 130.9613 },
+        transportType: TransportType.TRAIN,
+        transportDetail: '特急 Sonic / 新幹線 至小倉轉車',
+        googleMapsQuery: '門司港駅',
+        recommendedFood: ['博多站鐵路便當 (Ekiben)', '特急列車上的咖啡'],
+        nearbySpots: ['小倉站 (轉車點)', '門司港車站'],
+      },
+      {
+        id: 'd2-2',
+        time: '10:30',
+        title: '唐戶市場 (山口縣)',
+        description: '週末限定！滿滿的握壽司與河豚',
+        address_jp: '山口県下関市唐戸町 5-50',
+        address_en: 'Karato Market',
+        coordinates: { lat: 33.9578, lng: 130.9427 },
+        transportType: TransportType.SHIP,
+        transportDetail: '門司港搭關門聯絡船 (5分)',
+        googleMapsQuery: '唐戸市場',
+        recommendedFood: ['河豚生魚片 (必吃)', '大托盤握壽司', '炸河豚'],
+        nearbySpots: ['赤間神宮', '日清講和紀念館', '龜山八幡宮'],
+      },
+      {
+        id: 'd2-3',
+        time: '12:30',
+        title: '門司港懷舊區',
+        description: '大正浪漫風格的紅磚洋房',
+        address_jp: '北九州市門司区港町',
+        address_en: 'Mojiko Retro',
+        coordinates: { lat: 33.9463, lng: 130.9608 },
+        transportType: TransportType.SHIP,
+        transportDetail: '搭船返回門司港側',
+        googleMapsQuery: '門司港レトロ',
+        recommendedFood: ['燒咖哩 (Yaki Curry) - 門司港名物', '香蕉人甜點'],
+        nearbySpots: ['九州鐵道紀念館', '藍翼門司吊橋'],
+        shoppingSideQuests: [
+          { name: '海峽廣場', category: '伴手禮', description: '香蕉口味甜點、雜貨' }
+        ]
+      },
+      {
+        id: 'd2-4',
+        time: '15:30',
+        title: '小倉城',
+        description: '北九州的歷史象徵與天守閣',
+        address_jp: '北九州市小倉北区城内 2-1',
+        address_en: 'Kokura Castle',
+        coordinates: { lat: 33.8845, lng: 130.8732 },
+        transportType: TransportType.TRAIN,
+        transportDetail: 'JR 回小倉站 (15分)',
+        googleMapsQuery: '小倉城',
+        recommendedFood: ['旦過市場的大學丼', '揚子江豚包 (肉包)', '辻利茶舗'],
+        nearbySpots: ['旦過市場', 'Riverwalk 北九州', '松本清張紀念館'],
+        shoppingSideQuests: [
+          { name: '松本清 小倉店', category: '藥妝', description: '人比較少，貨全' },
+          { name: 'Aru Aru City', category: '動漫', description: '北九州秋葉原，動漫迷必去' }
+        ]
+      },
+      {
+        id: 'd2-5',
+        time: '19:00',
+        title: '博多/天神 晚餐',
+        description: '福岡靈魂美食：牛腸鍋或水炊鍋',
+        address_jp: '福岡市博多区博多駅前3-23-17',
+        address_en: 'Hakata Hanamidori / Echigoya',
+        coordinates: { lat: 33.5905, lng: 130.4182 },
+        transportType: TransportType.TRAIN,
+        transportDetail: '搭 JR 返回博多',
+        googleMapsQuery: '博多 華味鳥',
+        recommendedFood: ['博多華味鳥 (水炊鍋)', '越後屋 (牛腸鍋)', '博多祇園鉄なべ (餃子)'],
+        nearbySpots: ['博多運河城', '中洲川端商店街'],
+      },
+    ],
+  },
+  {
+    isoDate: '2026-03-01',
+    date: '3/1 (日)',
+    dayTitle: 'Day 3',
+    theme: '太宰府賞梅 & 天神爆買',
+    focus: '梅花滿開季節 + 天神大名區潮流購物 + 屋台體驗',
+    items: [
+      {
+        id: 'd3-1',
+        time: '09:00',
+        title: '太宰府天滿宮',
+        description: '飛梅傳說與古色古香的參道',
+        address_jp: '太宰府市宰府 4-7-1',
+        address_en: 'Dazaifu Tenmangu',
+        coordinates: { lat: 33.5215, lng: 130.5348 },
+        transportType: TransportType.TRAIN,
+        transportDetail: '地鐵至天神 → 轉西鐵電車',
+        googleMapsQuery: '太宰府天満宮',
+        recommendedFood: ['梅枝餅 (必吃)', '星巴克太宰府表參道店', '明太子茶泡飯'],
+        nearbySpots: ['九州國立博物館', '光明禪寺', '竈門神社 (鬼滅之刃聖地)'],
+        shoppingSideQuests: [
+          { name: '參道商店街', category: '伴手禮', description: '梅枝餅、太宰府限定紀念品' },
+          { name: 'どんぐり共和国', category: '吉卜力', description: '宮崎駿周邊專賣店' }
+        ]
+      },
+      {
+        id: 'd3-2',
+        time: '12:00',
+        title: '暖暮拉麵 / 一蘭',
+        description: '太宰府站前的熱門豚骨拉麵',
+        address_jp: '太宰府市宰府1-14-24',
+        address_en: 'Ramen shops near station',
+        coordinates: { lat: 33.5188, lng: 130.5323 },
+        transportType: TransportType.WALK,
+        transportDetail: '參拜後步行即達',
+        googleMapsQuery: '暖暮 太宰府駅前店',
+        recommendedFood: ['一蘭 (合格拉麵)', '暖暮拉麵 (九州票選第一)', '鬼瓦最中餅'],
+        nearbySpots: ['太宰府車站 (特色建築)'],
+      },
+      {
+        id: 'd3-3',
+        time: '14:30',
+        title: '天神 / 大名區',
+        description: '福岡最潮購物區、百貨與古著',
+        address_jp: '福岡市中央区天神',
+        address_en: 'Tenjin Shopping District',
+        coordinates: { lat: 33.5900, lng: 130.3980 },
+        transportType: TransportType.TRAIN,
+        transportDetail: '西鐵電車返回天神',
+        googleMapsQuery: '警固公園',
+        recommendedFood: ['Ivorish 法式吐司', 'Bake Cheese Tart', '極味屋漢堡排'],
+        nearbySpots: ['福岡PARCO', '天神地下街', '岩田屋百貨', '大名古著街'],
+        shoppingSideQuests: [
+          { name: 'Don Quijote 天神本店', category: '雜貨', description: '24小時營業，藥妝零食一次買齊' },
+          { name: 'Bic Camera 天神', category: '電器', description: '大型電器行，優惠券多' },
+          { name: '大名 (Daimyo)', category: '潮牌/古著', description: 'Supreme, Stussy, 古著店聚集地' },
+          { name: '松本清/大國藥妝', category: '藥妝', description: '天神地下街有很多間，可比價' }
+        ]
+      },
+      {
+        id: 'd3-4',
+        time: '18:30',
+        title: '中洲屋台 & 運河城',
+        description: '那珂川旁的屋台燈籠與噴水秀',
+        address_jp: '福岡市博多区中洲 1-8',
+        address_en: 'Nakasu Yatai',
+        coordinates: { lat: 33.5925, lng: 130.4075 },
+        transportType: TransportType.WALK,
+        transportDetail: '從天神步行約 10-15 分',
+        googleMapsQuery: '中洲屋台横丁',
+        recommendedFood: ['屋台黑輪 (Oden)', '博多一口餃子', '燒拉麵 (Yaki Ramen)'],
+        nearbySpots: ['博多運河城 (整點噴水秀)', '春吉橋', '唐吉訶德 中洲店'],
+      },
+    ],
+  },
+  {
+    isoDate: '2026-03-02',
+    date: '3/2 (一)',
+    dayTitle: 'Day 4',
+    theme: '神社祈福 & 機場衝刺',
+    focus: '把握最後時光 + 10:00 抵達機場',
+    items: [
+      {
+        id: 'd4-1',
+        time: '08:30',
+        title: '櫛田神社',
+        description: '博多總鎮守與巨型裝飾山笠',
+        address_jp: '福岡市博多区上川端町 1-41',
+        address_en: 'Kushida Shrine',
+        coordinates: { lat: 33.5930, lng: 130.4105 },
+        transportType: TransportType.TAXI,
+        transportDetail: '從飯店計程車 5 分鐘',
+        googleMapsQuery: '櫛田神社',
+        recommendedFood: ['櫛田茶屋 (烤餅)', '川端通商店街紅豆湯'],
+        nearbySpots: ['博多町家文化館', '川端通商店街'],
+        shoppingSideQuests: [
+          { name: '川端通商店街', category: '雜貨', description: '當地傳統商店街，適合買小紀念品' }
+        ]
+      },
+      {
+        id: 'd4-2',
+        time: '09:30',
+        title: '回飯店拿行李',
+        description: '整理戰利品準備出發',
+        address_jp: '福岡市博多区博多駅南 2-2-5',
+        address_en: 'Hotel WBF Grande Hakata',
+        coordinates: { lat: 33.5855, lng: 130.4265 },
+        transportType: TransportType.WALK,
+        transportDetail: '返回飯店',
+        googleMapsQuery: 'Hotel WBF Grande Hakata',
+        recommendedFood: ['最後的便利商店飲料'],
+        nearbySpots: ['飯店大廳'],
+      },
+      {
+        id: 'd4-3',
+        time: '09:45',
+        title: '出發前往機場',
+        description: '前往福岡機場國際線航廈',
+        address_jp: '福岡空港 国際線ターミナル',
+        address_en: 'Fukuoka Airport Int\'l Terminal',
+        coordinates: { lat: 33.5852, lng: 130.4447 },
+        transportType: TransportType.TAXI,
+        transportDetail: '務必搭計程車 (說: Kokusai-sen)',
+        googleMapsQuery: '福岡空港 国際線ターミナル',
+        recommendedFood: ['無 (趕路中)'],
+        nearbySpots: ['福岡機場國內線 (別跑錯)'],
+      },
+      {
+        id: 'd4-4',
+        time: '10:15',
+        title: '機場免稅店',
+        description: '最後衝刺：明太子與小雞饅頭',
+        address_jp: '福岡空港',
+        address_en: 'Duty Free Area',
+        coordinates: { lat: 33.5850, lng: 130.4450 },
+        transportType: TransportType.FLIGHT,
+        transportDetail: '過安檢後',
+        googleMapsQuery: 'Fukuoka Airport',
+        recommendedFood: ['福砂屋長崎蛋糕', '博多通饅頭', '一蘭泡麵禮盒', '明太子'],
+        nearbySpots: ['登機門', 'Starbucks 機場店'],
+        shoppingSideQuests: [
+          { name: '免稅店 (Duty Free)', category: '伴手禮', description: '必買：福砂屋、吉野堂小雞、山口油屋福太郎' },
+          { name: '7-11 (管制區外)', category: '零食', description: '雪肌粹、便利商店限定零食最後補貨' }
+        ]
+      },
+    ],
+  },
+];

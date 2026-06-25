@@ -48,12 +48,25 @@ interface RawItineraryItem {
  * JSON 格式的每日行程
  */
 interface RawDayItinerary {
+  isoDate?: string;
   date: string;
   dayTitle: string;
   theme: string;
   focus: string;
   items: RawItineraryItem[];
 }
+
+/**
+ * 從 "M/D (X)" 格式推算 ISO 日期 (2026 年)
+ * 例: "2/27 (五)" → "2026-02-27"
+ */
+const deriveIsoDate = (dateStr: string): string => {
+  const match = dateStr.match(/^(\d{1,2})\/(\d{1,2})/);
+  if (!match) return '2026-01-01';
+  const month = match[1].padStart(2, '0');
+  const day = match[2].padStart(2, '0');
+  return `2026-${month}-${day}`;
+};
 
 /**
  * 將字串轉換為 TransportType enum
@@ -95,6 +108,7 @@ const parseShoppingSideQuests = (quests?: (string | ShoppingSpot)[]): ShoppingSp
  */
 const parseDayItinerary = (raw: RawDayItinerary): DayItinerary => {
   return {
+    isoDate: raw.isoDate ?? deriveIsoDate(raw.date),
     date: raw.date,
     dayTitle: raw.dayTitle,
     theme: raw.theme,

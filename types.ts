@@ -34,6 +34,7 @@ export interface ItineraryItem {
 }
 
 export interface DayItinerary {
+  isoDate: string;
   date: string;
   dayTitle: string;
   theme: string;

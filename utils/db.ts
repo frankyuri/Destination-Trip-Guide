@@ -1,6 +1,6 @@
 import { DayItinerary } from '../types';
-import { ITINERARY_DATA, getItineraryData2 } from '../constants';
-import { ItineraryPlanType } from './dataLoader';
+import { ITINERARY_DATA } from '../constants';
+import { ItineraryPlanType, loadItineraryData2 } from './dataLoader';
 
 const DB_NAME = 'fukuoka-trip-db';
 const STORE_NAME = 'itineraries';
@@ -18,7 +18,7 @@ const getStoreName = (plan: ItineraryPlanType): string => {
  * 根據方案取得對應的預設資料
  */
 const getDefaultData = (plan: ItineraryPlanType): DayItinerary[] => {
-  return plan === 'plan1' ? ITINERARY_DATA : getItineraryData2();
+  return plan === 'plan1' ? ITINERARY_DATA : loadItineraryData2();
 };
 
 /**

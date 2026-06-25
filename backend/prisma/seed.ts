@@ -1,146 +1,94 @@
-/**
- * prisma/seed.ts — 匯入現有前端 JSON 資料作為種子資料
- *
- * Usage: npx tsx prisma/seed.ts
- */
-import { PrismaClient } from '@prisma/client';
-import * as fs from 'fs';
-import * as path from 'path';
+import { PrismaClient, TransportType } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { ITINERARY_DATA } from '../../constants';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
-
-  // Create a demo user
+  const demoPassword = process.env.DEMO_PASSWORD || 'demo1234';
   const user = await prisma.user.upsert({
     where: { email: 'demo@fukuokatrip.com' },
     update: {},
     create: {
       email: 'demo@fukuokatrip.com',
-      passwordHash: '$2a$12$LJ3Y5U5JqHhMZK8Iw8RhCeNTITHMLYh8k7Zz0qR8sE1oXV/Gq2nW6', // "demo1234"
+      passwordHash: await bcrypt.hash(demoPassword, 12),
       displayName: '旅人 Demo',
       locale: 'zh-TW',
     },
   });
-  console.log(`👤 User: ${user.email} (${user.id})`);
 
-  // Create trip
   const trip = await prisma.trip.upsert({
-    where: { id: 'seed-trip-fukuoka-2025' },
-    update: {},
+    where: { id: 'seed-trip-fukuoka-2026' },
+    update: {
+      name: '2026 福岡之旅',
+      startDate: new Date('2026-02-27T00:00:00.000Z'),
+      endDate: new Date('2026-03-02T00:00:00.000Z'),
+    },
     create: {
-      id: 'seed-trip-fukuoka-2025',
+      id: 'seed-trip-fukuoka-2026',
       userId: user.id,
-      name: '2025 福岡之旅',
+      name: '2026 福岡之旅',
       description: '四天三夜福岡深度遊',
-      startDate: new Date('2025-02-27'),
-      endDate: new Date('2025-03-02'),
+      startDate: new Date('2026-02-27T00:00:00.000Z'),
+      endDate: new Date('2026-03-02T00:00:00.000Z'),
     },
   });
-  console.log(`✈️ Trip: ${trip.name}`);
 
-  // Create plans
-  const dataDir = path.resolve(__dirname, '../../data');
+  await prisma.itineraryPlan.deleteMany({ where: { tripId: trip.id } });
+  const plan = await prisma.itineraryPlan.create({
+    data: { tripId: trip.id, planName: '主要行程', isActive: true, sortOrder: 0 },
+  });
 
-  for (const planDef of [
-    { name: 'plan1', folder: 'itinerary', active: true },
-    { name: 'plan2', folder: 'itinerary2', active: false },
-  ]) {
-    const planDir = path.join(dataDir, planDef.folder);
-    if (!fs.existsSync(planDir)) {
-      console.log(`⚠️  Skipping ${planDef.name}: directory ${planDir} not found`);
-      continue;
-    }
-
-    // Delete existing plan data if re-seeding
-    await prisma.itineraryPlan.deleteMany({
-      where: { tripId: trip.id, planName: planDef.name },
-    });
-
-    const plan = await prisma.itineraryPlan.create({
+  for (const [dayIndex, dayData] of ITINERARY_DATA.entries()) {
+    const day = await prisma.itineraryDay.create({
       data: {
-        tripId: trip.id,
-        planName: planDef.name,
-        isActive: planDef.active,
-        sortOrder: planDef.name === 'plan1' ? 0 : 1,
+        planId: plan.id,
+        isoDate: new Date(`${dayData.isoDate}T00:00:00.000Z`),
+        dateLabel: dayData.date,
+        dayTitle: dayData.dayTitle,
+        theme: dayData.theme,
+        focus: dayData.focus,
+        sortOrder: dayIndex,
       },
     });
-    console.log(`📋 Plan: ${plan.planName} (active: ${plan.isActive})`);
 
-    // Read day JSON files
-    const dayFiles = fs.readdirSync(planDir)
-      .filter(f => f.endsWith('.json'))
-      .sort();
-
-    for (let di = 0; di < dayFiles.length; di++) {
-      const raw = fs.readFileSync(path.join(planDir, dayFiles[di]), 'utf-8');
-      const dayData = JSON.parse(raw);
-
-      const day = await prisma.itineraryDay.create({
+    for (const [itemIndex, item] of dayData.items.entries()) {
+      await prisma.itineraryItem.create({
         data: {
-          planId: plan.id,
-          dateLabel: dayData.date,
-          dayTitle: dayData.dayTitle,
-          theme: dayData.theme,
-          focus: dayData.focus,
-          sortOrder: di,
+          id: item.id,
+          dayId: day.id,
+          time: item.time,
+          title: item.title,
+          description: item.description,
+          addressJp: item.address_jp,
+          addressEn: item.address_en,
+          lat: item.coordinates.lat,
+          lng: item.coordinates.lng,
+          transportType: item.transportType as TransportType,
+          transportDetail: item.transportDetail,
+          googleMapsQuery: item.googleMapsQuery || '',
+          sortOrder: itemIndex,
+          recommendedFoods: { create: item.recommendedFood.map((name, sortOrder) => ({ name, sortOrder })) },
+          nearbySpots: { create: item.nearbySpots.map((name, sortOrder) => ({ name, sortOrder })) },
+          shoppingSpots: {
+            create: (item.shoppingSideQuests || []).map((spot, sortOrder) => ({
+              name: spot.name,
+              category: spot.category,
+              description: spot.description || '',
+              sortOrder,
+            })),
+          },
         },
       });
-
-      for (let ii = 0; ii < (dayData.items || []).length; ii++) {
-        const item = dayData.items[ii];
-
-        await prisma.itineraryItem.create({
-          data: {
-            dayId: day.id,
-            time: item.time,
-            title: item.title,
-            description: item.description || '',
-            addressJp: item.address_jp || '',
-            addressEn: item.address_en || '',
-            lat: item.coordinates?.lat || 33.5902,
-            lng: item.coordinates?.lng || 130.4017,
-            transportType: item.transportType || 'WALK',
-            transportDetail: item.transportDetail || '',
-            googleMapsQuery: item.googleMapsQuery || '',
-            sortOrder: ii,
-            recommendedFoods: {
-              create: (item.recommendedFood || []).map((name: string, i: number) => ({
-                name,
-                sortOrder: i,
-              })),
-            },
-            nearbySpots: {
-              create: (item.nearbySpots || []).map((name: string, i: number) => ({
-                name,
-                sortOrder: i,
-              })),
-            },
-            shoppingSpots: {
-              create: (item.shoppingSideQuests || []).map((s: any, i: number) => ({
-                name: s.name,
-                category: s.category || '',
-                description: s.description || '',
-                sortOrder: i,
-              })),
-            },
-          },
-        });
-      }
-
-      console.log(`  📅 ${day.dayTitle} (${day.dateLabel}): ${dayData.items?.length || 0} items`);
     }
   }
 
-  console.log('\n✅ Seed complete!');
+  console.log(`Seeded ${trip.name} for ${user.email}`);
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ Seed failed:', e);
-    process.exit(1);
+  .catch((error) => {
+    console.error('Seed failed:', error);
+    process.exitCode = 1;
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .finally(async () => prisma.$disconnect());

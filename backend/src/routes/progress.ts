@@ -1,72 +1,47 @@
-/**
- * src/routes/progress.ts — 進度追蹤
- */
-import { Router, Response, NextFunction } from 'express';
+import { NextFunction, Response, Router } from 'express';
 import { prisma } from '../lib/prisma';
+import { asRecord, requireBoolean } from '../lib/validation';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 router.use(authenticate);
 
-/**
- * GET /api/trips/:tripId/progress — 取得該旅程所有完成進度
- */
 router.get('/trips/:tripId/progress', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const tripId = req.params.tripId as string;
+    const trip = await prisma.trip.findFirst({ where: { id: req.params.tripId, userId: req.user!.userId }, select: { id: true } });
+    if (!trip) {
+      res.status(404).json({ error: '找不到此旅程' });
+      return;
+    }
     const progress = await prisma.progress.findMany({
-      where: {
-        userId: req.user!.userId,
-        item: {
-          day: {
-            plan: { tripId },
-          },
-        },
-      },
+      where: { userId: req.user!.userId, item: { day: { plan: { tripId: trip.id } } } },
     });
-
-    res.json(progress.map(p => ({
-      item_id: p.itemId,
-      is_completed: p.isCompleted,
-      completed_at: p.completedAt,
-    })));
-  } catch (err) {
-    next(err);
+    res.json(progress.map((record) => ({ item_id: record.itemId, is_completed: record.isCompleted, completed_at: record.completedAt })));
+  } catch (error) {
+    next(error);
   }
 });
 
-/**
- * PUT /api/progress/:itemId — 切換完成/未完成
- */
 router.put('/progress/:itemId', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { is_completed } = req.body;
-    const userId = req.user!.userId;
-    const itemId = req.params.itemId as string;
-
+    const body = asRecord(req.body);
+    const isCompleted = requireBoolean(body.is_completed, 'is_completed');
+    const item = await prisma.itineraryItem.findFirst({
+      where: { id: req.params.itemId, day: { plan: { trip: { userId: req.user!.userId } } } },
+      select: { id: true },
+    });
+    if (!item) {
+      res.status(404).json({ error: '找不到此行程項目' });
+      return;
+    }
     const record = await prisma.progress.upsert({
-      where: {
-        userId_itemId: { userId, itemId },
-      },
-      create: {
-        userId,
-        itemId,
-        isCompleted: is_completed ?? true,
-        completedAt: is_completed ? new Date() : null,
-      },
-      update: {
-        isCompleted: is_completed ?? true,
-        completedAt: is_completed ? new Date() : null,
-      },
+      where: { userId_itemId: { userId: req.user!.userId, itemId: item.id } },
+      create: { userId: req.user!.userId, itemId: item.id, isCompleted, completedAt: isCompleted ? new Date() : null },
+      update: { isCompleted, completedAt: isCompleted ? new Date() : null },
     });
-
-    res.json({
-      item_id: record.itemId,
-      is_completed: record.isCompleted,
-      completed_at: record.completedAt,
-    });
-  } catch (err) {
-    next(err);
+    res.json({ item_id: record.itemId, is_completed: record.isCompleted, completed_at: record.completedAt });
+  } catch (error) {
+    next(error);
   }
 });
 

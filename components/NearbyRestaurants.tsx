@@ -1,207 +1,124 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Star, MapPin, Clock, ChevronDown, ChevronUp, Loader2, Navigation, ExternalLink, AlertCircle } from 'lucide-react';
-import { searchNearbyRestaurants, formatPriceLevel, formatDistance, NearbyRestaurant } from '../utils/places';
+import React, { useEffect, useState } from 'react';
+import { ChevronDown, ChevronUp, ExternalLink, Loader2, MapPin, Navigation, Star } from 'lucide-react';
+import { formatDistance, formatPriceLevel, NearbyRestaurant, searchNearbyRestaurants } from '../utils/places';
 
 interface NearbyRestaurantsProps {
-    lat: number;
-    lng: number;
-    locationName: string;
-    isExpanded: boolean;
-    onToggle: () => void;
-    onHover?: (location: { lat: number, lng: number } | null) => void;
+  lat: number;
+  lng: number;
+  locationName: string;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 export const NearbyRestaurants: React.FC<NearbyRestaurantsProps> = ({
-    lat,
-    lng,
-    locationName,
-    isExpanded,
-    onToggle,
-    onHover
+  lat,
+  lng,
+  locationName,
+  isExpanded,
+  onToggle,
 }) => {
-    const [restaurants, setRestaurants] = useState<NearbyRestaurant[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [apiUnavailable, setApiUnavailable] = useState(false);
-    const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [restaurants, setRestaurants] = useState<NearbyRestaurant[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const panelId = `nearby-restaurants-${lat}-${lng}`.replace(/\./g, '-');
 
-    useEffect(() => {
-        if (isExpanded && restaurants.length === 0 && !apiUnavailable) {
-            loadRestaurants();
+  useEffect(() => {
+    if (!isExpanded || restaurants.length > 0 || loading) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    searchNearbyRestaurants(lat, lng, 500)
+      .then((results) => {
+        if (!cancelled) setRestaurants(results);
+      })
+      .catch((requestError: unknown) => {
+        console.error('Nearby restaurant search failed:', requestError);
+        if (!cancelled) {
+          setError(requestError instanceof Error ? requestError.message : '無法載入附近餐廳');
         }
-    }, [isExpanded]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-    const loadRestaurants = async () => {
-        setLoading(true);
-        setError(null);
-        setApiUnavailable(false);
-        try {
-            const result = await searchNearbyRestaurants(lat, lng, 500);
-            setRestaurants(result.restaurants);
-            setApiUnavailable(result.apiUnavailable);
-        } catch (err) {
-            setError('無法載入附近餐廳');
-        } finally {
-            setLoading(false);
-        }
+    return () => {
+      cancelled = true;
     };
+  }, [isExpanded, restaurants.length, loading, lat, lng]);
 
-    const handleOpenMaps = (restaurant: NearbyRestaurant) => {
-        const query = encodeURIComponent(restaurant.name + ' ' + restaurant.address);
-        window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-    };
+  return (
+    <section className="mt-4 border-t border-gray-100 pt-4" aria-label={`${locationName}附近餐廳`}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex min-h-11 w-full items-center justify-between rounded-xl border border-orange-100 bg-gradient-to-r from-orange-50 to-amber-50 p-3 transition-all hover:from-orange-100 hover:to-amber-100"
+        aria-expanded={isExpanded}
+        aria-controls={panelId}
+      >
+        <span className="flex items-center gap-2 text-sm font-bold text-orange-700">
+          <span className="text-lg" aria-hidden="true">🍜</span>
+          附近 500m 餐廳
+        </span>
+        {isExpanded ? <ChevronUp size={18} className="text-orange-500" aria-hidden="true" /> : <ChevronDown size={18} className="text-orange-500" aria-hidden="true" />}
+      </button>
 
-    return (
-        <div className="mt-4 border-t border-gray-100 pt-4">
-            <button
-                onClick={(e) => { e.stopPropagation(); onToggle(); }}
-                className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-100 hover:from-orange-100 hover:to-amber-100 transition-all"
-            >
-                <div className="flex items-center gap-2 text-orange-700 font-bold text-sm">
-                    <span className="text-lg">🍜</span>
-                    附近 500m 餐廳
+      {isExpanded && (
+        <div id={panelId} className="mt-3 space-y-2">
+          {loading && (
+            <div className="flex items-center justify-center py-8 text-orange-500" role="status">
+              <Loader2 className="mr-2 animate-spin" size={20} aria-hidden="true" />
+              <span className="text-sm">搜尋中…</span>
+            </div>
+          )}
+
+          {error && <p className="py-4 text-center text-sm text-red-600" role="alert">{error}</p>}
+          {!loading && !error && restaurants.length === 0 && <p className="py-4 text-center text-sm text-gray-400">附近沒有找到餐廳</p>}
+
+          {!loading && restaurants.map((restaurant) => {
+            const query = encodeURIComponent(`${restaurant.name} ${restaurant.address}`);
+            return (
+              <a
+                key={restaurant.placeId}
+                href={`https://www.google.com/maps/search/?api=1&query=${query}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block min-h-11 rounded-lg border border-gray-100 bg-white p-3 transition-all hover:border-orange-200 hover:shadow-sm"
+                aria-label={`在 Google Maps 開啟 ${restaurant.name}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="truncate text-sm font-bold text-gray-800 transition-colors group-hover:text-orange-600">{restaurant.name}</h4>
+                      {restaurant.isOpen !== undefined && (
+                        <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${restaurant.isOpen ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {restaurant.isOpen ? '營業中' : '休息中'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                      {restaurant.rating !== undefined && (
+                        <span className="flex items-center gap-0.5 font-medium text-amber-500">
+                          <Star size={12} className="fill-current" aria-hidden="true" />
+                          {restaurant.rating}
+                          {restaurant.userRatingsTotal !== undefined && <span className="ml-0.5 text-gray-400">({restaurant.userRatingsTotal > 999 ? `${(restaurant.userRatingsTotal / 1000).toFixed(1)}k` : restaurant.userRatingsTotal})</span>}
+                        </span>
+                      )}
+                      {restaurant.priceLevel !== undefined && <span className="font-medium text-green-600">{formatPriceLevel(restaurant.priceLevel)}</span>}
+                      {restaurant.distance !== undefined && <span className="flex items-center gap-0.5"><Navigation size={10} aria-hidden="true" />{formatDistance(restaurant.distance)}</span>}
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-1 text-[11px] text-gray-400">
+                      <MapPin size={10} aria-hidden="true" />
+                      <span className="truncate">{restaurant.address}</span>
+                    </div>
+                  </div>
+                  <ExternalLink size={14} className="mt-1 flex-shrink-0 text-gray-300 group-hover:text-orange-400" aria-hidden="true" />
                 </div>
-                {isExpanded ? (
-                    <ChevronUp size={18} className="text-orange-500" />
-                ) : (
-                    <ChevronDown size={18} className="text-orange-500" />
-                )}
-            </button>
-
-            {isExpanded && (
-                <div className="mt-3 space-y-2 animate-in fade-in slide-in-from-top-2">
-                    {loading && (
-                        <div className="flex items-center justify-center py-8 text-orange-500">
-                            <Loader2 className="animate-spin mr-2" size={20} />
-                            <span className="text-sm">搜尋中...</span>
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="text-center py-4 text-red-500 text-sm">
-                            {error}
-                        </div>
-                    )}
-
-                    {!loading && !error && apiUnavailable && (
-                        <div className="flex flex-col items-center py-6 px-4 bg-amber-50 rounded-lg border border-amber-100">
-                            <AlertCircle size={24} className="text-amber-500 mb-2" />
-                            <p className="text-amber-700 text-sm font-medium text-center mb-3">
-                                餐廳搜尋服務暫時無法使用
-                            </p>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    const query = encodeURIComponent(`${locationName} 附近餐廳`);
-                                    window.open(`https://www.google.com/maps/search/${query}`, '_blank');
-                                }}
-                                className="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full hover:bg-amber-200 transition-colors font-medium"
-                            >
-                                在 Google Maps 搜尋
-                            </button>
-                        </div>
-                    )}
-
-                    {!loading && !error && !apiUnavailable && restaurants.length === 0 && (
-                        <div className="text-center py-4 text-gray-400 text-sm">
-                            附近沒有找到餐廳
-                        </div>
-                    )}
-
-                    {!loading && restaurants.map((restaurant) => (
-                        <div
-                            key={restaurant.placeId}
-                            onClick={(e) => { e.stopPropagation(); handleOpenMaps(restaurant); }}
-                            onMouseEnter={() => {
-                                // Clear any pending hover clears
-                                if (hoverTimeout.current) {
-                                    clearTimeout(hoverTimeout.current);
-                                }
-
-                                // Debounce the hover event (100ms)
-                                hoverTimeout.current = setTimeout(() => {
-                                    if (onHover && restaurant.location) {
-                                        const { lat, lng } = restaurant.location;
-                                        if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng)) {
-                                            onHover(restaurant.location);
-                                        }
-                                    }
-                                }, 100);
-                            }}
-                            onMouseLeave={() => {
-                                if (hoverTimeout.current) {
-                                    clearTimeout(hoverTimeout.current);
-                                }
-
-                                // Immediate clear or short debounce for clearing? 
-                                // Immediate clear feels snappier when moving away
-                                if (onHover) {
-                                    onHover(null);
-                                }
-                            }}
-                            className="p-3 bg-white rounded-lg border border-gray-100 hover:border-orange-200 hover:shadow-sm transition-all cursor-pointer group"
-                        >
-                            <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <h4 className="font-bold text-gray-800 text-sm truncate group-hover:text-orange-600 transition-colors">
-                                            {restaurant.name}
-                                        </h4>
-                                        {restaurant.isOpen !== undefined && (
-                                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${restaurant.isOpen
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-gray-100 text-gray-500'
-                                                }`}>
-                                                {restaurant.isOpen ? '營業中' : '休息中'}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                                        {restaurant.rating && (
-                                            <span className="flex items-center gap-0.5 text-amber-500 font-medium">
-                                                <Star size={12} className="fill-current" />
-                                                {restaurant.rating}
-                                                {restaurant.userRatingsTotal && (
-                                                    <span className="text-gray-400 ml-0.5">
-                                                        ({restaurant.userRatingsTotal > 999
-                                                            ? `${(restaurant.userRatingsTotal / 1000).toFixed(1)}k`
-                                                            : restaurant.userRatingsTotal})
-                                                    </span>
-                                                )}
-                                            </span>
-                                        )}
-                                        {restaurant.priceLevel && (
-                                            <span className="text-green-600 font-medium">
-                                                {formatPriceLevel(restaurant.priceLevel)}
-                                            </span>
-                                        )}
-                                        {restaurant.distance && (
-                                            <span className="flex items-center gap-0.5">
-                                                <Navigation size={10} />
-                                                {formatDistance(restaurant.distance)}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="flex items-center gap-1 mt-1.5 text-[11px] text-gray-400">
-                                        <MapPin size={10} />
-                                        <span className="truncate">{restaurant.address}</span>
-                                    </div>
-                                </div>
-
-                                <ExternalLink size={14} className="text-gray-300 group-hover:text-orange-400 flex-shrink-0 mt-1" />
-                            </div>
-                        </div>
-                    ))}
-
-                    {!loading && restaurants.length > 0 && (
-                        <p className="text-center text-[10px] text-gray-400 pt-2">
-                            點擊可在 Google Maps 查看詳情
-                        </p>
-                    )}
-                </div>
-            )}
+              </a>
+            );
+          })}
         </div>
-    );
+      )}
+    </section>
+  );
 };

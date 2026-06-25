@@ -1,226 +1,165 @@
-/**
- * src/routes/trips.ts — 旅程 CRUD
- */
-import { Router, Response, NextFunction } from 'express';
+import { Prisma } from '@prisma/client';
+import { NextFunction, Response, Router } from 'express';
 import { prisma } from '../lib/prisma';
+import { asRecord, optionalString, requireIsoDate, requireString } from '../lib/validation';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
-
-// All trip routes require authentication
 router.use(authenticate);
 
-/**
- * GET /api/trips — 列出我的旅程
- */
-router.get('/', async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const trips = await prisma.trip.findMany({
-      where: { userId: req.user!.userId },
-      include: {
-        plans: {
-          select: { id: true, planName: true, isActive: true },
-          orderBy: { sortOrder: 'asc' },
-        },
-      },
-      orderBy: { updatedAt: 'desc' },
-    });
-
-    res.json(trips.map(t => ({
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      start_date: t.startDate,
-      end_date: t.endDate,
-      plans: t.plans.map(p => ({
-        id: p.id,
-        plan_name: p.planName,
-        is_active: p.isActive,
-      })),
-      created_at: t.createdAt,
-      updated_at: t.updatedAt,
-    })));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * POST /api/trips — 建立旅程
- */
-router.post('/', async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const { name, description, start_date, end_date } = req.body;
-
-    if (!name) {
-      res.status(400).json({ error: '旅程名稱為必填' });
-      return;
-    }
-
-    const trip = await prisma.trip.create({
-      data: {
-        userId: req.user!.userId,
-        name,
-        description,
-        startDate: start_date ? new Date(start_date) : null,
-        endDate: end_date ? new Date(end_date) : null,
-      },
-    });
-
-    res.status(201).json({
-      id: trip.id,
-      name: trip.name,
-      description: trip.description,
-      start_date: trip.startDate,
-      end_date: trip.endDate,
-      created_at: trip.createdAt,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * GET /api/trips/:tripId — 取得旅程詳情
- */
-router.get('/:tripId', async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const tripId = req.params.tripId as string;
-    const trip = await prisma.trip.findFirst({
-      where: { id: tripId, userId: req.user!.userId },
-      include: {
-        plans: {
-          orderBy: { sortOrder: 'asc' },
-          include: {
-            days: {
-              orderBy: { sortOrder: 'asc' },
-              include: {
-                items: {
-                  orderBy: { sortOrder: 'asc' },
-                  include: {
-                    recommendedFoods: { orderBy: { sortOrder: 'asc' } },
-                    nearbySpots: { orderBy: { sortOrder: 'asc' } },
-                    shoppingSpots: { orderBy: { sortOrder: 'asc' } },
-                  },
-                },
-              },
+const tripInclude = {
+  plans: {
+    orderBy: { sortOrder: 'asc' as const },
+    include: {
+      days: {
+        orderBy: { sortOrder: 'asc' as const },
+        include: {
+          items: {
+            orderBy: { sortOrder: 'asc' as const },
+            include: {
+              recommendedFoods: { orderBy: { sortOrder: 'asc' as const } },
+              nearbySpots: { orderBy: { sortOrder: 'asc' as const } },
+              shoppingSpots: { orderBy: { sortOrder: 'asc' as const } },
             },
           },
         },
       },
-    });
+    },
+  },
+} satisfies Prisma.TripInclude;
 
+type FullTrip = Prisma.TripGetPayload<{ include: typeof tripInclude }>;
+
+const formatTrip = (trip: FullTrip) => ({
+  id: trip.id,
+  name: trip.name,
+  description: trip.description,
+  start_date: trip.startDate,
+  end_date: trip.endDate,
+  plans: trip.plans.map((plan) => ({
+    id: plan.id,
+    plan_name: plan.planName,
+    is_active: plan.isActive,
+    days: plan.days.map((day) => ({
+      id: day.id,
+      isoDate: day.isoDate.toISOString().slice(0, 10),
+      date: day.dateLabel,
+      dayTitle: day.dayTitle,
+      theme: day.theme,
+      focus: day.focus,
+      sort_order: day.sortOrder,
+      items: day.items.map((item) => ({
+        id: item.id,
+        time: item.time,
+        title: item.title,
+        description: item.description,
+        address_jp: item.addressJp,
+        address_en: item.addressEn,
+        coordinates: { lat: Number(item.lat), lng: Number(item.lng) },
+        transportType: item.transportType,
+        transportDetail: item.transportDetail,
+        googleMapsQuery: item.googleMapsQuery,
+        sort_order: item.sortOrder,
+        recommendedFood: item.recommendedFoods.map((food) => food.name),
+        nearbySpots: item.nearbySpots.map((spot) => spot.name),
+        shoppingSideQuests: item.shoppingSpots.map((spot) => ({ name: spot.name, category: spot.category, description: spot.description })),
+      })),
+    })),
+  })),
+  created_at: trip.createdAt,
+  updated_at: trip.updatedAt,
+});
+
+router.get('/', async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const trips = await prisma.trip.findMany({
+      where: { userId: req.user!.userId },
+      include: { plans: { select: { id: true, planName: true, isActive: true }, orderBy: { sortOrder: 'asc' } } },
+      orderBy: { updatedAt: 'desc' },
+    });
+    res.json(trips.map((trip) => ({
+      id: trip.id, name: trip.name, description: trip.description, start_date: trip.startDate, end_date: trip.endDate,
+      plans: trip.plans.map((plan) => ({ id: plan.id, plan_name: plan.planName, is_active: plan.isActive })),
+      created_at: trip.createdAt, updated_at: trip.updatedAt,
+    })));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/', async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const body = asRecord(req.body);
+    const startDate = body.start_date === undefined || body.start_date === null ? null : requireIsoDate(body.start_date, 'start_date');
+    const endDate = body.end_date === undefined || body.end_date === null ? null : requireIsoDate(body.end_date, 'end_date');
+    if (startDate && endDate && endDate < startDate) {
+      res.status(400).json({ error: 'end_date 不可早於 start_date' });
+      return;
+    }
+    const trip = await prisma.trip.create({
+      data: {
+        userId: req.user!.userId,
+        name: requireString(body.name, '旅程名稱', 200),
+        description: optionalString(body.description, '旅程說明', 5000),
+        startDate,
+        endDate,
+      },
+    });
+    res.status(201).json({ id: trip.id, name: trip.name, description: trip.description, start_date: trip.startDate, end_date: trip.endDate, created_at: trip.createdAt });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:tripId', async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const trip = await prisma.trip.findFirst({ where: { id: req.params.tripId, userId: req.user!.userId }, include: tripInclude });
     if (!trip) {
       res.status(404).json({ error: '找不到此旅程' });
       return;
     }
-
     res.json(formatTrip(trip));
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
-/**
- * PUT /api/trips/:tripId — 更新旅程
- */
 router.put('/:tripId', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { name, description, start_date, end_date } = req.body;
-
-    const tripId = req.params.tripId as string;
-    const trip = await prisma.trip.updateMany({
-      where: { id: tripId, userId: req.user!.userId },
+    const body = asRecord(req.body);
+    const startDate = body.start_date === undefined ? undefined : body.start_date === null ? null : requireIsoDate(body.start_date, 'start_date');
+    const endDate = body.end_date === undefined ? undefined : body.end_date === null ? null : requireIsoDate(body.end_date, 'end_date');
+    const result = await prisma.trip.updateMany({
+      where: { id: req.params.tripId, userId: req.user!.userId },
       data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(start_date !== undefined && { startDate: start_date ? new Date(start_date) : null }),
-        ...(end_date !== undefined && { endDate: end_date ? new Date(end_date) : null }),
+        ...(body.name !== undefined && { name: requireString(body.name, '旅程名稱', 200) }),
+        ...(body.description !== undefined && { description: optionalString(body.description, '旅程說明', 5000) }),
+        ...(startDate !== undefined && { startDate }),
+        ...(endDate !== undefined && { endDate }),
       },
     });
-
-    if (trip.count === 0) {
-      res.status(404).json({ error: '找不到此旅程' });
-      return;
-    }
-
-    const updated = await prisma.trip.findUnique({ where: { id: tripId } });
-    res.json({ id: updated!.id, name: updated!.name, description: updated!.description });
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * DELETE /api/trips/:tripId — 刪除旅程
- */
-router.delete('/:tripId', async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const tripId = req.params.tripId as string;
-    const result = await prisma.trip.deleteMany({
-      where: { id: tripId, userId: req.user!.userId },
-    });
-
     if (result.count === 0) {
       res.status(404).json({ error: '找不到此旅程' });
       return;
     }
-
-    res.json({ message: '旅程已刪除' });
-  } catch (err) {
-    next(err);
+    const updated = await prisma.trip.findUniqueOrThrow({ where: { id: req.params.tripId } });
+    res.json({ id: updated.id, name: updated.name, description: updated.description, start_date: updated.startDate, end_date: updated.endDate });
+  } catch (error) {
+    next(error);
   }
 });
 
-// --- Helper ---
-function formatTrip(trip: any) {
-  return {
-    id: trip.id,
-    name: trip.name,
-    description: trip.description,
-    start_date: trip.startDate,
-    end_date: trip.endDate,
-    plans: trip.plans?.map((p: any) => ({
-      id: p.id,
-      plan_name: p.planName,
-      is_active: p.isActive,
-      days: p.days?.map((d: any) => ({
-        id: d.id,
-        date_label: d.dateLabel,
-        day_title: d.dayTitle,
-        theme: d.theme,
-        focus: d.focus,
-        sort_order: d.sortOrder,
-        items: d.items?.map(formatItem),
-      })),
-    })),
-    created_at: trip.createdAt,
-    updated_at: trip.updatedAt,
-  };
-}
-
-function formatItem(item: any) {
-  return {
-    id: item.id,
-    time: item.time,
-    title: item.title,
-    description: item.description,
-    address_jp: item.addressJp,
-    address_en: item.addressEn,
-    lat: Number(item.lat),
-    lng: Number(item.lng),
-    transport_type: item.transportType,
-    transport_detail: item.transportDetail,
-    google_maps_query: item.googleMapsQuery,
-    sort_order: item.sortOrder,
-    recommended_foods: item.recommendedFoods?.map((f: any) => f.name) || [],
-    nearby_spots: item.nearbySpots?.map((s: any) => s.name) || [],
-    shopping_spots: item.shoppingSpots?.map((s: any) => ({
-      name: s.name,
-      category: s.category,
-      description: s.description,
-    })) || [],
-  };
-}
+router.delete('/:tripId', async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const result = await prisma.trip.deleteMany({ where: { id: req.params.tripId, userId: req.user!.userId } });
+    if (result.count === 0) {
+      res.status(404).json({ error: '找不到此旅程' });
+      return;
+    }
+    res.json({ message: '旅程已刪除' });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export { router as tripsRouter };

@@ -1,57 +1,48 @@
-/**
- * src/middleware/auth.ts — JWT 認證中間件
- */
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../config';
 
 export interface AuthPayload {
   userId: string;
   email: string;
+  tokenType: 'access';
 }
 
 export interface AuthRequest extends Request {
   user?: AuthPayload;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
+const decodeAccessToken = (token: string): AuthPayload => {
+  const decoded = jwt.verify(token, getJwtSecret()) as Partial<AuthPayload>;
+  if (decoded.tokenType !== 'access' || typeof decoded.userId !== 'string' || typeof decoded.email !== 'string') {
+    throw new Error('Invalid access token payload');
+  }
+  return decoded as AuthPayload;
+};
 
-/**
- * 驗證 JWT Token
- */
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
-
   if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ error: '未提供認證 Token' });
     return;
   }
 
-  const token = authHeader.split(' ')[1];
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthPayload;
-    req.user = decoded;
+    req.user = decodeAccessToken(authHeader.slice(7));
     next();
-  } catch (err) {
+  } catch {
     res.status(401).json({ error: 'Token 無效或已過期' });
   }
 };
 
-/**
- * 可選認證 — 如果有 token 就解析，沒有也繼續
- */
-export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const optionalAuth = (req: AuthRequest, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
-
   if (authHeader?.startsWith('Bearer ')) {
     try {
-      const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(token, JWT_SECRET) as AuthPayload;
-      req.user = decoded;
+      req.user = decodeAccessToken(authHeader.slice(7));
     } catch {
-      // Token invalid — continue without user
+      req.user = undefined;
     }
   }
-
   next();
 };
