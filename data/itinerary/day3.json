@@ -1,0 +1,158 @@
+{
+    "date": "3/1 (日)",
+    "dayTitle": "Day 3",
+    "theme": "太宰府賞梅 & 天神爆買",
+    "focus": "梅花滿開季節 + 天神大名區潮流購物 + 屋台體驗",
+    "items": [
+        {
+            "id": "d3-0",
+            "time": "08:30",
+            "title": "Hotel WBF Grande Hakata",
+            "description": "飯店出發，前往地鐵站",
+            "address_jp": "福岡市博多区博多駅南 2-2-5",
+            "address_en": "Hotel WBF Grande Hakata",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "WALK",
+            "transportDetail": "前往地鐵站",
+            "googleMapsQuery": "Hotel WBF Grande Hakata",
+            "recommendedFood": [],
+            "nearbySpots": []
+        },
+        {
+            "id": "d3-1",
+            "time": "09:00",
+            "title": "太宰府天滿宮",
+            "description": "飛梅傳說與古色古香的參道",
+            "address_jp": "太宰府市宰府 4-7-1",
+            "address_en": "Dazaifu Tenmangu",
+            "coordinates": {
+                "lat": 33.5215,
+                "lng": 130.5348
+            },
+            "transportType": "TRAIN",
+            "transportDetail": "地鐵至天神 → 轉西鐵電車",
+            "googleMapsQuery": "太宰府天満宮",
+            "recommendedFood": [
+                "梅枝餅 (必吃)",
+                "星巴克太宰府表參道店",
+                "明太子茶泡飯"
+            ],
+            "nearbySpots": [
+                "九州國立博物館",
+                "光明禪寺",
+                "竈門神社 (鬼滅之刃聖地)"
+            ],
+            "shoppingSideQuests": [
+                {
+                    "name": "參道商店街",
+                    "category": "伴手禮",
+                    "description": "梅枝餅、太宰府限定紀念品"
+                },
+                {
+                    "name": "どんぐり共和国",
+                    "category": "吉卜力",
+                    "description": "宮崎駿周邊專賣店"
+                }
+            ]
+        },
+        {
+            "id": "d3-2",
+            "time": "12:00",
+            "title": "暖暮 太宰府駅前店",
+            "description": "太宰府站前的熱門豚骨拉麵 / 一蘭",
+            "address_jp": "太宰府市宰府1-14-24",
+            "address_en": "Ramen shops near station",
+            "coordinates": {
+                "lat": 33.5188,
+                "lng": 130.5323
+            },
+            "transportType": "WALK",
+            "transportDetail": "參拜後步行即達",
+            "googleMapsQuery": "暖暮 太宰府駅前店",
+            "recommendedFood": [
+                "一蘭 (合格拉麵)",
+                "暖暮拉麵 (九州票選第一)",
+                "鬼瓦最中餅"
+            ],
+            "nearbySpots": [
+                "太宰府車站 (特色建築)"
+            ]
+        },
+        {
+            "id": "d3-3",
+            "time": "14:30",
+            "title": "天神 / 大名區",
+            "description": "福岡最潮購物區、百貨與古著",
+            "address_jp": "福岡市中央区天神",
+            "address_en": "Tenjin Shopping District",
+            "coordinates": {
+                "lat": 33.5900,
+                "lng": 130.3980
+            },
+            "transportType": "TRAIN",
+            "transportDetail": "西鐵電車返回天神",
+            "googleMapsQuery": "警固公園",
+            "recommendedFood": [
+                "Ivorish 法式吐司",
+                "Bake Cheese Tart",
+                "極味屋漢堡排"
+            ],
+            "nearbySpots": [
+                "福岡PARCO",
+                "天神地下街",
+                "岩田屋百貨",
+                "大名古著街"
+            ],
+            "shoppingSideQuests": [
+                {
+                    "name": "Don Quijote 天神本店",
+                    "category": "雜貨",
+                    "description": "24小時營業，藥妝零食一次買齊"
+                },
+                {
+                    "name": "Bic Camera 天神",
+                    "category": "電器",
+                    "description": "大型電器行，優惠券多"
+                },
+                {
+                    "name": "大名 (Daimyo)",
+                    "category": "潮牌/古著",
+                    "description": "Supreme, Stussy, 古著店聚集地"
+                },
+                {
+                    "name": "松本清/大國藥妝",
+                    "category": "藥妝",
+                    "description": "天神地下街有很多間，可比價"
+                }
+            ]
+        },
+        {
+            "id": "d3-4",
+            "time": "18:30",
+            "title": "中洲屋台 & 運河城",
+            "description": "那珂川旁的屋台燈籠與噴水秀",
+            "address_jp": "福岡市博多区中洲 1-8",
+            "address_en": "Nakasu Yatai",
+            "coordinates": {
+                "lat": 33.5925,
+                "lng": 130.4075
+            },
+            "transportType": "WALK",
+            "transportDetail": "從天神步行約 10-15 分",
+            "googleMapsQuery": "中洲屋台横丁",
+            "recommendedFood": [
+                "屋台黑輪 (Oden)",
+                "博多一口餃子",
+                "燒拉麵 (Yaki Ramen)"
+            ],
+            "nearbySpots": [
+                "博多運河城 (整點噴水秀)",
+                "春吉橋",
+                "唐吉訶德 中洲店"
+            ]
+        }
+    ]
+}

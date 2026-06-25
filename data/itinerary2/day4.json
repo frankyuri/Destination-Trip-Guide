@@ -1,0 +1,48 @@
+{
+    "date": "3/2 (一)",
+    "dayTitle": "Day 4",
+    "theme": "早起返程",
+    "focus": "退房 → 直奔機場 → 免稅店掃貨 → 10:00 起飛",
+    "items": [
+        {
+            "id": "d4-0",
+            "time": "06:45",
+            "title": "HOTEL WBF GRANDE HAKATA (退房)",
+            "description": "早起收拾行李並辦理退房。請飯店幫忙叫計程車前往機場。",
+            "address_jp": "〒812-0016 福岡県福岡市博多区博多駅南2丁目2-5",
+            "address_en": "2-2-5 Hakataeki Minami, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "TAXI",
+            "transportDetail": "請飯店櫃檯幫忙叫車。",
+            "googleMapsQuery": "HOTEL WBF GRANDE HAKATA",
+            "recommendedFood": [],
+            "nearbySpots": [],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d4-1",
+            "time": "07:15",
+            "title": "前往福岡機場 (FUK)",
+            "description": "辦理退房，請飯店幫忙叫計程車。因有行李且時間早，搭計程車最保險舒適。記得預留時間逛機場免稅店。",
+            "address_jp": "〒812-0003 福岡県福岡市博多区下臼井778-1",
+            "address_en": "778-1 Shimousui, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5859,
+                "lng": 130.4447
+            },
+            "transportType": "TAXI",
+            "transportDetail": "從飯店搭計程車至國際線航廈，約15-20分鐘，車資約¥1,500-¥2,000。",
+            "googleMapsQuery": "Fukuoka Airport International Terminal",
+            "recommendedFood": [
+                "機場免稅店伴手禮 (Royce, 白色戀人, 福砂屋)"
+            ],
+            "nearbySpots": [],
+            "shoppingSideQuests": [
+                "機場免稅店 (最後衝刺)"
+            ]
+        }
+    ]
+}

@@ -33,14 +33,37 @@ export const TransportIcon: React.FC<TransportIconProps> = ({
     }
 };
 
-export const getTransportLabel = (type: TransportType): string => {
-    switch (type) {
-        case TransportType.TAXI: return '計程車';
-        case TransportType.TRAIN: return '電車/JR';
-        case TransportType.BUS: return '公車';
-        case TransportType.SHIP: return '船';
-        case TransportType.WALK: return '步行';
-        case TransportType.FLIGHT: return '飛機';
-        default: return type;
-    }
+import { TranslationKeys } from '../i18n/locales/zh-TW';
+
+/** Transport type → i18n key mapping */
+const TRANSPORT_I18N_MAP: Record<TransportType, TranslationKeys> = {
+    [TransportType.TAXI]: 'transportTaxi',
+    [TransportType.TRAIN]: 'transportTrain',
+    [TransportType.BUS]: 'transportBus',
+    [TransportType.SHIP]: 'transportShip',
+    [TransportType.WALK]: 'transportWalk',
+    [TransportType.FLIGHT]: 'transportFlight',
+};
+
+/**
+ * Get localized transport label.
+ * Accepts an optional `t` function from useI18n() for proper translations.
+ * Falls back to looking up the key in the map when `t` is not provided.
+ */
+export const getTransportLabel = (
+    type: TransportType,
+    t?: (key: TranslationKeys) => string
+): string => {
+    const key = TRANSPORT_I18N_MAP[type] ?? 'transportWalk';
+    if (t) return t(key);
+    // Fallback — return the key itself (components that need i18n should pass t)
+    const fallback: Record<string, string> = {
+        transportTaxi: '計程車',
+        transportTrain: '電車/JR',
+        transportBus: '公車',
+        transportShip: '船',
+        transportWalk: '步行',
+        transportFlight: '飛機',
+    };
+    return fallback[key] ?? type;
 };

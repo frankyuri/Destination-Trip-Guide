@@ -9,6 +9,7 @@
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "types": [
       "node",
       "google.maps"

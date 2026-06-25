@@ -1,0 +1,117 @@
+{
+    "date": "3/2 (一)",
+    "dayTitle": "Day 4",
+    "theme": "神社祈福 & 機場衝刺",
+    "focus": "把握最後時光 + 10:00 抵達機場",
+    "items": [
+        {
+            "id": "d4-1",
+            "time": "08:30",
+            "title": "櫛田神社",
+            "description": "博多總鎮守與巨型裝飾山笠",
+            "address_jp": "福岡市博多区上川端町 1-41",
+            "address_en": "Kushida Shrine",
+            "coordinates": {
+                "lat": 33.5930,
+                "lng": 130.4105
+            },
+            "transportType": "TAXI",
+            "transportDetail": "從飯店計程車 5 分鐘",
+            "googleMapsQuery": "櫛田神社",
+            "recommendedFood": [
+                "櫛田茶屋 (烤餅)",
+                "川端通商店街紅豆湯"
+            ],
+            "nearbySpots": [
+                "博多町家文化館",
+                "川端通商店街"
+            ],
+            "shoppingSideQuests": [
+                {
+                    "name": "川端通商店街",
+                    "category": "雜貨",
+                    "description": "當地傳統商店街，適合買小紀念品"
+                }
+            ]
+        },
+        {
+            "id": "d4-2",
+            "time": "09:30",
+            "title": "Hotel WBF Grande Hakata",
+            "description": "回飯店拿行李，整理戰利品準備出發",
+            "address_jp": "福岡市博多区博多駅南 2-2-5",
+            "address_en": "Hotel WBF Grande Hakata",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "WALK",
+            "transportDetail": "返回飯店",
+            "googleMapsQuery": "Hotel WBF Grande Hakata",
+            "recommendedFood": [
+                "最後的便利商店飲料"
+            ],
+            "nearbySpots": [
+                "飯店大廳"
+            ]
+        },
+        {
+            "id": "d4-3",
+            "time": "09:45",
+            "title": "福岡空港 国際線ターミナル",
+            "description": "出發前往機場",
+            "address_jp": "福岡空港 国際線ターミナル",
+            "address_en": "Fukuoka Airport Int'l Terminal",
+            "coordinates": {
+                "lat": 33.5852,
+                "lng": 130.4447
+            },
+            "transportType": "TAXI",
+            "transportDetail": "務必搭計程車 (說: Kokusai-sen)",
+            "googleMapsQuery": "福岡空港 国際線ターミナル",
+            "recommendedFood": [
+                "無 (趕路中)"
+            ],
+            "nearbySpots": [
+                "福岡機場國內線 (別跑錯)"
+            ]
+        },
+        {
+            "id": "d4-4",
+            "time": "10:15",
+            "title": "福岡空港 免稅店",
+            "description": "最後衝刺：明太子與小雞饅頭",
+            "address_jp": "福岡空港",
+            "address_en": "Duty Free Area",
+            "coordinates": {
+                "lat": 33.5850,
+                "lng": 130.4450
+            },
+            "transportType": "FLIGHT",
+            "transportDetail": "過安檢後",
+            "googleMapsQuery": "Fukuoka Airport",
+            "recommendedFood": [
+                "福砂屋長崎蛋糕",
+                "博多通饅頭",
+                "一蘭泡麵禮盒",
+                "明太子"
+            ],
+            "nearbySpots": [
+                "登機門",
+                "Starbucks 機場店"
+            ],
+            "shoppingSideQuests": [
+                {
+                    "name": "免稅店 (Duty Free)",
+                    "category": "伴手禮",
+                    "description": "必買：福砂屋、吉野堂小雞、山口油屋福太郎"
+                },
+                {
+                    "name": "7-11 (管制區外)",
+                    "category": "零食",
+                    "description": "雪肌粹、便利商店限定零食最後補貨"
+                }
+            ]
+        }
+    ]
+}

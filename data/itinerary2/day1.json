@@ -1,0 +1,142 @@
+{
+    "date": "2/27 (五)",
+    "dayTitle": "Day 1",
+    "theme": "紅眼班機・天神掃貨 & 體力恢復",
+    "focus": "機場直奔飯店寄物 → Mina天神買衣(Uniqlo/GU) → 飯店補眠 → 牛腸鍋補氣",
+    "items": [
+        {
+            "id": "d1-1",
+            "time": "08:00",
+            "title": "HOTEL WBF GRANDE HAKATA (寄放行李)",
+            "description": "紅眼班機抵達後，優先搭計程車來飯店寄放行李。此飯店頂樓有大浴場，晚上回來務必使用。由於離車站徒步約10-15分，有行李時強烈建議搭車。",
+            "address_jp": "〒812-0016 福岡県福岡市博多区博多駅南2丁目2-5",
+            "address_en": "2-2-5 Hakataeki Minami, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "TAXI",
+            "transportDetail": "從福岡機場國際線搭計程車直達，車程約15-20分，車資約¥1,500-¥2,000 [1]。",
+            "googleMapsQuery": "HOTEL WBF GRANDE HAKATA",
+            "recommendedFood": [],
+            "nearbySpots": [],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d1-2",
+            "time": "10:00",
+            "title": "Mina 天神 (ミーナ天神)",
+            "description": "天神地區的大型商場，您的主戰場。1F/2F 有九州最大級 UNIQLO，3F 有 GU，4F 有 LoFt。這裡可以一次買齊這幾天要穿的衣服。",
+            "address_jp": "〒810-0001 福岡県福岡市中央区天神4丁目3-8",
+            "address_en": "4-3-8 Tenjin, Chuo Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5932,
+                "lng": 130.3989
+            },
+            "transportType": "SUBWAY",
+            "transportDetail": "從博多站搭地鐵空港線至「天神站」，步行3分鐘。",
+            "googleMapsQuery": "Mina Tenjin",
+            "recommendedFood": [
+                "Jins Bakery (麵包)",
+                "31冰淇淋"
+            ],
+            "nearbySpots": [
+                "天神地下街 [3]",
+                "福岡中央郵局"
+            ],
+            "shoppingSideQuests": [
+                "UNIQLO",
+                "GU",
+                "LoFt",
+                "Seria (百元店)"
+            ]
+        },
+        {
+            "id": "d1-3",
+            "time": "13:30",
+            "title": "博多純情拉麵 Shin-Shin (天神本店)",
+            "description": "福岡藝人最愛的拉麵店。湯頭是豚骨結合雞骨，濃郁不騷，麵條極細。避開正午尖峰時刻去吃。",
+            "address_jp": "〒810-0001 福岡県福岡市中央区天神3丁目2-19",
+            "address_en": "3-2-19 Tenjin, Chuo Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5935,
+                "lng": 130.3965
+            },
+            "transportType": "WALK",
+            "transportDetail": "從 Mina 天神步行約 5-8 分鐘。",
+            "googleMapsQuery": "ShinShin Ramen Tenjin",
+            "recommendedFood": [
+                "博多拉麵",
+                "半熟卵拉麵",
+                "炒飯"
+            ],
+            "nearbySpots": [
+                "安国寺"
+            ],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d1-4",
+            "time": "15:30",
+            "title": "飯店補眠 (Check-in)",
+            "description": "回到 HOTEL WBF 辦理入住。強烈建議此時洗澡並睡午覺 2-3 小時，恢復紅眼班機的疲勞，晚上才有力氣。",
+            "address_jp": "同上",
+            "address_en": "同上",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "TAXI",
+            "transportDetail": "從天神搭計程車回飯店 (約¥1,200)，或搭公車/地鐵回博多站再走回去。",
+            "googleMapsQuery": "HOTEL WBF GRANDE HAKATA",
+            "recommendedFood": [],
+            "nearbySpots": [],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d1-5",
+            "time": "19:00",
+            "title": "博多牛腸鍋 大山 (KITTE博多店)",
+            "description": "晚餐就在博多站旁吃，不用跑遠。大山（Ooyama）的味噌口味牛腸鍋是必吃，湯頭濃厚帶甜，牛腸肥嫩。",
+            "address_jp": "〒812-0012 福岡県福岡市博多区博多駅中央街9-1 KITTE博多 9F",
+            "address_en": "KITTE Hakata 9F, 9-1 Hakataekichuogai, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5893,
+                "lng": 130.4196
+            },
+            "transportType": "WALK",
+            "transportDetail": "從飯店步行約 12 分鐘至博多站旁。",
+            "googleMapsQuery": "Hakata Motsunabe Ooyama KITTE Hakata",
+            "recommendedFood": [
+                "味噌牛腸鍋",
+                "醋牛腸 (酢もつ)",
+                "明太子"
+            ],
+            "nearbySpots": [
+                "JR博多城",
+                "博多阪急"
+            ],
+            "shoppingSideQuests": [
+                "KITTE 博多"
+            ]
+        },
+        {
+            "id": "d1-6",
+            "time": "21:00",
+            "title": "HOTEL WBF GRANDE HAKATA (回飯店休息)",
+            "description": "回到飯店好好休息，記得到頂樓大浴場泡湯消除疲勞！明天還有精彩行程。",
+            "address_jp": "〒812-0016 福岡県福岡市博多区博多駅南2丁目2-5",
+            "address_en": "2-2-5 Hakataeki Minami, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "WALK",
+            "transportDetail": "從博多站步行約 10-15 分鐘回飯店。",
+            "googleMapsQuery": "HOTEL WBF GRANDE HAKATA",
+            "recommendedFood": [],
+            "nearbySpots": [],
+            "shoppingSideQuests": []
+        }
+    ]
+}

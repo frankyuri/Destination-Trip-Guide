@@ -1,0 +1,185 @@
+{
+    "date": "2/27 (五)",
+    "dayTitle": "Day 1",
+    "theme": "地標全制霸 & 鋼彈",
+    "focus": "紅眼班機落地 → 寄放行李 → 醒腦美景 → 鋼彈燈光秀",
+    "items": [
+        {
+            "id": "d1-1",
+            "time": "07:30",
+            "title": "Hotel WBF Grande Hakata",
+            "description": "前往飯店寄放行李 / 外觀",
+            "address_jp": "福岡市博多区博多駅南 2-2-5",
+            "address_en": "Hotel WBF Grande Hakata",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "TAXI",
+            "transportDetail": "機場直達 (約 ¥1500)",
+            "googleMapsQuery": "Hotel WBF Grande Hakata",
+            "recommendedFood": [
+                "便利商店炸雞 (全家/Lawson)",
+                "博多站 Il Forno del Mignon 可頌"
+            ],
+            "nearbySpots": [
+                "博多車站",
+                "筑紫口"
+            ],
+            "shoppingSideQuests": [
+                {
+                    "name": "Yodobashi Camera 博多",
+                    "category": "電器/扭蛋",
+                    "description": "台灣人買電器首選，扭蛋機超多"
+                },
+                {
+                    "name": "博多阪急百貨",
+                    "category": "精品/伴手禮",
+                    "description": "BaoBao包、Albion健康水"
+                }
+            ]
+        },
+        {
+            "id": "d1-2",
+            "time": "09:00",
+            "title": "大濠公園 & 舞鶴公園",
+            "description": "湖景與福岡城跡天守台",
+            "address_jp": "福岡市中央区大濠公園 1-2",
+            "address_en": "Ohori Park",
+            "coordinates": {
+                "lat": 33.5862,
+                "lng": 130.3762
+            },
+            "transportType": "TAXI",
+            "transportDetail": "從飯店出發 (約 15 分)",
+            "googleMapsQuery": "大濠公園",
+            "recommendedFood": [
+                "Royal Garden Cafe (湖畔早餐)",
+                "星巴克 大濠公園店",
+                "La Brioche 麵包"
+            ],
+            "nearbySpots": [
+                "福岡市美術館",
+                "日本庭園",
+                "福岡城跡"
+            ]
+        },
+        {
+            "id": "d1-3",
+            "time": "12:00",
+            "title": "福岡塔 & 海濱百道",
+            "description": "日本最高海濱塔與人工沙灘",
+            "address_jp": "福岡市早良区百道浜 2-3-26",
+            "address_en": "Fukuoka Tower",
+            "coordinates": {
+                "lat": 33.5932,
+                "lng": 130.3515
+            },
+            "transportType": "BUS",
+            "transportDetail": "大濠公園搭乘 15/77 號公車",
+            "googleMapsQuery": "福岡タワー",
+            "recommendedFood": [
+                "Blue Seal 冰淇淋",
+                "The Beach (沙灘咖啡廳)",
+                "海濱 BBQ"
+            ],
+            "nearbySpots": [
+                "福岡 PayPay 巨蛋",
+                "Mark Is 福岡百道"
+            ],
+            "shoppingSideQuests": [
+                {
+                    "name": "Mark Is 福岡百道",
+                    "category": "商場",
+                    "description": "Uniqlo, GU, Seria (百元店) 大型店"
+                }
+            ]
+        },
+        {
+            "id": "d1-4",
+            "time": "15:00",
+            "title": "Hotel WBF Grande Hakata",
+            "description": "Check-in & 梳洗，享受飯店大浴場與短暫補眠",
+            "address_jp": "福岡市博多区博多駅南 2-2-5",
+            "address_en": "Hotel WBF Grande Hakata",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "TAXI",
+            "transportDetail": "搭計程車回飯店休息",
+            "googleMapsQuery": "Hotel WBF Grande Hakata",
+            "recommendedFood": [
+                "飯店迎賓飲料",
+                "附近便利商店甜點"
+            ],
+            "nearbySpots": [
+                "博多站筑紫口",
+                "東比惠公園"
+            ]
+        },
+        {
+            "id": "d1-5",
+            "time": "16:30",
+            "title": "住吉神社",
+            "description": "日本三大住吉之一，紅色本殿",
+            "address_jp": "福岡市博多区住吉 3-1-51",
+            "address_en": "Sumiyoshi Shrine",
+            "coordinates": {
+                "lat": 33.5857,
+                "lng": 130.4132
+            },
+            "transportType": "WALK",
+            "transportDetail": "從飯店步行約 8-10 分",
+            "googleMapsQuery": "筑前國一之宮 住吉神社",
+            "recommendedFood": [
+                "博多拉麵 ShinShin 住吉店",
+                "烏龍麵平 (Udon Taira)"
+            ],
+            "nearbySpots": [
+                "樂水園 (日本庭園)",
+                "柳橋連合市場 (博多的廚房)"
+            ]
+        },
+        {
+            "id": "d1-6",
+            "time": "19:00",
+            "title": "LaLaport 福岡",
+            "description": "1:1 巨型鋼彈 RX-93ff 立像",
+            "address_jp": "福岡市博多区那珂 6-23-1",
+            "address_en": "LaLaport Fukuoka",
+            "coordinates": {
+                "lat": 33.5653,
+                "lng": 130.4357
+            },
+            "transportType": "TAXI",
+            "transportDetail": "計程車直達 (約 10 分)",
+            "googleMapsQuery": "三井ショッピングパーク ららぽーと福岡",
+            "recommendedFood": [
+                "利久牛舌 (美食街)",
+                "Gundam Park 咖啡",
+                "GODIVA 甜點"
+            ],
+            "nearbySpots": [
+                "KidZania 福岡"
+            ],
+            "shoppingSideQuests": [
+                {
+                    "name": "LOPIA 超市",
+                    "category": "超市",
+                    "description": "必逛！水果、零食、和牛超便宜"
+                },
+                {
+                    "name": "Standard Products",
+                    "category": "雜貨",
+                    "description": "大創的高級版，質感很好"
+                },
+                {
+                    "name": "Gundam Side-F",
+                    "category": "模型",
+                    "description": "限定鋼彈模型"
+                }
+            ]
+        }
+    ]
+}

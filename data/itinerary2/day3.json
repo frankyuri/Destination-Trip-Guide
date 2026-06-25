@@ -1,0 +1,125 @@
+{
+    "date": "3/1 (日)",
+    "dayTitle": "Day 3",
+    "theme": "鋼彈朝聖 & 最終採買",
+    "focus": "睡飽 → LaLaport 福岡 → 博多站最後衝刺 → 燒肉大餐",
+    "items": [
+        {
+            "id": "d3-0",
+            "time": "10:00",
+            "title": "HOTEL WBF GRANDE HAKATA (睡飽出發)",
+            "description": "今天可以睡到自然醒！享用飯店早餐或大浴場後，悠閒出發前往 LaLaport。",
+            "address_jp": "〒812-0016 福岡県福岡市博多区博多駅南2丁目2-5",
+            "address_en": "2-2-5 Hakataeki Minami, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "WALK",
+            "transportDetail": "步行至博多站約 10-15 分鐘。",
+            "googleMapsQuery": "HOTEL WBF GRANDE HAKATA",
+            "recommendedFood": [
+                "飯店早餐"
+            ],
+            "nearbySpots": [
+                "博多車站"
+            ],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d3-1",
+            "time": "11:00",
+            "title": "LaLaport 福岡 (實體鋼彈)",
+            "description": "門口有 1:1 RX-93ff ν 鋼彈立像 (整點有表演)。館內有 Gundam Side-F、Uniqlo、GU、超市等，是補貨的好地方。",
+            "address_jp": "〒812-8627 福岡県福岡市博多区那珂6丁目23-1",
+            "address_en": "6-23-1 Naka, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5652,
+                "lng": 130.4418
+            },
+            "transportType": "TRAIN",
+            "transportDetail": "從博多站搭 JR 鹿兒島本線至「竹下站」，步行 9 分鐘。",
+            "googleMapsQuery": "LaLaport Fukuoka",
+            "recommendedFood": [
+                "久留米拉麵 清陽軒 (3F)",
+                "利久牛舌 (3F)",
+                "超市便當 (1F)"
+            ],
+            "nearbySpots": [
+                "鋼彈博多 (Gundam Park)"
+            ],
+            "shoppingSideQuests": [
+                "GUNDAM SIDE-F",
+                "LOFT",
+                "阿卡將本舖",
+                "超市 (Market 351)"
+            ]
+        },
+        {
+            "id": "d3-2",
+            "time": "16:00",
+            "title": "博多站周邊 (AMU PLAZA / 阪急)",
+            "description": "回到博多站進行最後採買。地下街有許多伴手禮，如努努雞、明太子仙貝、博多通饅頭。",
+            "address_jp": "〒812-0012 福岡県福岡市博多区博多駅中央街1-1",
+            "address_en": "1-1 Hakataekichuogai, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5902,
+                "lng": 130.4207
+            },
+            "transportType": "TRAIN",
+            "transportDetail": "從竹下站搭 JR 回博多站。",
+            "googleMapsQuery": "JR Hakata City",
+            "recommendedFood": [
+                "努努雞 (冷炸雞) [18]",
+                "明月堂博多通饅頭"
+            ],
+            "nearbySpots": [
+                "博多阪急",
+                "Maing (名產街)"
+            ],
+            "shoppingSideQuests": [
+                "AMU PLAZA",
+                "Tokyu Hands"
+            ]
+        },
+        {
+            "id": "d3-3",
+            "time": "18:30",
+            "title": "燒肉 Nikulab (博多筑紫口店)",
+            "description": "最後一晚的慶功宴。就在飯店附近，提供 A5 黑毛和牛燒肉吃到飽，裝潢時尚，適合拍照。",
+            "address_jp": "〒812-0013 福岡県福岡市博多区博多駅東2丁目1-24 ギャラリーハカタ 5階",
+            "address_en": "5F Gallery Hakata, 2-1-24 Hakataekihigashi, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5898,
+                "lng": 130.4225
+            },
+            "transportType": "WALK",
+            "transportDetail": "從博多站筑紫口步行約 5 分鐘，離飯店也很近。",
+            "googleMapsQuery": "Nikulab Hakata",
+            "recommendedFood": [
+                "A5黑毛和牛",
+                "海鮮"
+            ],
+            "nearbySpots": [],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d3-4",
+            "time": "21:00",
+            "title": "HOTEL WBF GRANDE HAKATA (最後一晚)",
+            "description": "最後一晚好好休息，記得整理行李準備明天退房！泡完大浴場後早點睡，明天要趕飛機。",
+            "address_jp": "〒812-0016 福岡県福岡市博多区博多駅南2丁目2-5",
+            "address_en": "2-2-5 Hakataeki Minami, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "WALK",
+            "transportDetail": "從燒肉店步行約 5-10 分鐘回飯店。",
+            "googleMapsQuery": "HOTEL WBF GRANDE HAKATA",
+            "recommendedFood": [],
+            "nearbySpots": [],
+            "shoppingSideQuests": []
+        }
+    ]
+}

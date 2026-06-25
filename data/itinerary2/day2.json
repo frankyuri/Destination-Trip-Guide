@@ -1,0 +1,143 @@
+{
+    "date": "2/28 (六)",
+    "dayTitle": "Day 2",
+    "theme": "門司港・下關跨海懷舊之旅",
+    "focus": "唐戶市場壽司市集 → 關門海峽渡輪 → 復古洋樓散策 → 燒咖哩",
+    "items": [
+        {
+            "id": "d2-0",
+            "time": "08:00",
+            "title": "HOTEL WBF GRANDE HAKATA (出發)",
+            "description": "早起出發前往門司港！建議在飯店或便利商店簡單吃點早餐。",
+            "address_jp": "〒812-0016 福岡県福岡市博多区博多駅南2丁目2-5",
+            "address_en": "2-2-5 Hakataeki Minami, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "WALK",
+            "transportDetail": "步行至博多站約 10-15 分鐘。",
+            "googleMapsQuery": "HOTEL WBF GRANDE HAKATA",
+            "recommendedFood": [
+                "飯店早餐",
+                "便利商店飯糰"
+            ],
+            "nearbySpots": [
+                "博多車站"
+            ],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d2-1",
+            "time": "09:00",
+            "title": "移動：博多 → 門司港",
+            "description": "搭乘 JR 鹿兒島本線前往門司港。建議搭乘「特急 Sonic (音速號)」至小倉轉車，或搭乘直達快速列車。門司港站本身是國家重要文化財，記得在復古站牌前拍照。",
+            "address_jp": "〒801-0841 福岡県北九州市門司区西海岸1-5-31",
+            "address_en": "1-5-31 Nishikaigan, Moji Ward, Kitakyushu",
+            "coordinates": {
+                "lat": 33.9443,
+                "lng": 130.9572
+            },
+            "transportType": "TRAIN",
+            "transportDetail": "JR 博多站 -> JR 門司港站 (約 45-60 分鐘)。",
+            "googleMapsQuery": "Mojiko Station",
+            "recommendedFood": [],
+            "nearbySpots": [
+                "星巴克 門司港站店 (舊三等待合室)"
+            ],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d2-2",
+            "time": "10:30",
+            "title": "唐戶市場 (下關)",
+            "description": "搭乘聯絡船跨越關門海峽（約5分鐘）。週五適逢「活跳跳馬關街」市集，必吃新鮮握壽司、河豚刺身、炸河豚。像自助餐一樣夾取後，到海邊看著大橋享用。",
+            "address_jp": "〒750-0005 山口県下関市唐戸町5-50",
+            "address_en": "5-50 Karatocho, Shimonoseki, Yamaguchi",
+            "coordinates": {
+                "lat": 33.9571,
+                "lng": 130.9427
+            },
+            "transportType": "SHIP",
+            "transportDetail": "門司港棧橋搭乘「關門聯絡船」至唐戶棧橋。",
+            "googleMapsQuery": "Karato Market",
+            "recommendedFood": [
+                "河豚生魚片",
+                "握壽司",
+                "河豚味噌湯"
+            ],
+            "nearbySpots": [
+                "赤間神宮",
+                "日清講和紀念館 (春帆樓)"
+            ],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d2-3",
+            "time": "14:30",
+            "title": "門司港懷舊區散策",
+            "description": "漫步於大正時期的紅磚洋房建築群。推薦參觀愛因斯坦住過的「舊門司三井俱樂部」以及「舊門司海關」。",
+            "address_jp": "〒801-0852 福岡県北九州市門司区港町",
+            "address_en": "Minatomachi, Moji Ward, Kitakyushu",
+            "coordinates": {
+                "lat": 33.9475,
+                "lng": 130.9623
+            },
+            "transportType": "WALK",
+            "transportDetail": "從唐戶搭船返回門司港後步行遊覽。",
+            "googleMapsQuery": "Mojiko Retro",
+            "recommendedFood": [
+                "門司港布丁 (Milk Hall Mojiko)",
+                "香蕉甜點"
+            ],
+            "nearbySpots": [
+                "藍翼門司吊橋",
+                "九州鐵道紀念館"
+            ],
+            "shoppingSideQuests": [
+                "海峽廣場 (伴手禮店)"
+            ]
+        },
+        {
+            "id": "d2-4",
+            "time": "16:30",
+            "title": "Princess Phi Phi (燒咖哩晚餐)",
+            "description": "門司港名物「燒咖哩」。這家店曾獲選第一名，特色是明太子燒咖哩與泰式皇室風格的調味，蔬菜豐富，口感層次多。",
+            "address_jp": "〒801-0841 福岡県北九州市門司区西海岸1-4-7",
+            "address_en": "1-4-7 Nishikaigan, Moji Ward, Kitakyushu",
+            "coordinates": {
+                "lat": 33.9458,
+                "lng": 130.9585
+            },
+            "transportType": "WALK",
+            "transportDetail": "位於門司港車站附近。",
+            "googleMapsQuery": "Princess Phi Phi Mojiko",
+            "recommendedFood": [
+                "國王燒咖哩",
+                "明太子燒咖哩"
+            ],
+            "nearbySpots": [
+                "Bear Fruits (另一家燒咖哩名店)"
+            ],
+            "shoppingSideQuests": []
+        },
+        {
+            "id": "d2-5",
+            "time": "18:00",
+            "title": "返回博多 → HOTEL WBF GRANDE HAKATA",
+            "description": "搭乘 JR 返回博多站，再步行或搭車回飯店。今天走了不少路，回飯店好好泡大浴場休息！",
+            "address_jp": "〒812-0016 福岡県福岡市博多区博多駅南2丁目2-5",
+            "address_en": "2-2-5 Hakataeki Minami, Hakata Ward, Fukuoka",
+            "coordinates": {
+                "lat": 33.5855,
+                "lng": 130.4265
+            },
+            "transportType": "TRAIN",
+            "transportDetail": "JR 門司港站 -> JR 博多站 (約 45-60 分鐘)，再步行回飯店。",
+            "googleMapsQuery": "HOTEL WBF GRANDE HAKATA",
+            "recommendedFood": [],
+            "nearbySpots": [],
+            "shoppingSideQuests": []
+        }
+    ]
+}
