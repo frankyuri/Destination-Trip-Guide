@@ -1,267 +1,208 @@
-/**
- * src/routes/items.ts — 行程項目 CRUD
- */
-import { Router, Response, NextFunction } from 'express';
+import { Prisma, TransportType } from '@prisma/client';
+import { NextFunction, Response, Router } from 'express';
 import { prisma } from '../lib/prisma';
+import { asRecord, optionalString, requireArray, requireFiniteNumber, requireString } from '../lib/validation';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { AppError } from '../middleware/errorHandler';
 
 const router = Router();
 router.use(authenticate);
 
-/**
- * POST /api/days/:dayId/items — 新增項目
- */
+const itemInclude = {
+  recommendedFoods: { orderBy: { sortOrder: 'asc' as const } },
+  nearbySpots: { orderBy: { sortOrder: 'asc' as const } },
+  shoppingSpots: { orderBy: { sortOrder: 'asc' as const } },
+} satisfies Prisma.ItineraryItemInclude;
+
+type ItemWithRelations = Prisma.ItineraryItemGetPayload<{ include: typeof itemInclude }>;
+
+const formatItem = (item: ItemWithRelations) => ({
+  id: item.id,
+  time: item.time,
+  title: item.title,
+  description: item.description,
+  address_jp: item.addressJp,
+  address_en: item.addressEn,
+  coordinates: { lat: Number(item.lat), lng: Number(item.lng) },
+  transportType: item.transportType,
+  transportDetail: item.transportDetail,
+  googleMapsQuery: item.googleMapsQuery,
+  sort_order: item.sortOrder,
+  recommendedFood: item.recommendedFoods.map((food) => food.name),
+  nearbySpots: item.nearbySpots.map((spot) => spot.name),
+  shoppingSideQuests: item.shoppingSpots.map((spot) => ({ name: spot.name, category: spot.category, description: spot.description })),
+});
+
+const parseTime = (value: unknown, required: boolean): string | undefined => {
+  if (value === undefined && !required) return undefined;
+  const time = requireString(value, 'time', 5);
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) throw new AppError('time 格式必須為 HH:mm', 400);
+  return time;
+};
+
+const parseTransportType = (value: unknown, required: boolean): TransportType | undefined => {
+  if (value === undefined && !required) return undefined;
+  if (typeof value !== 'string' || !Object.values(TransportType).includes(value as TransportType)) throw new AppError('transport_type 格式錯誤', 400);
+  return value as TransportType;
+};
+
+const parseStringList = (value: unknown, field: string): string[] | undefined => {
+  if (value === undefined) return undefined;
+  return requireArray(value, field, 50).map((entry) => requireString(entry, field, 200));
+};
+
+interface ShoppingInput { name: string; category: string; description: string }
+const parseShoppingList = (value: unknown): ShoppingInput[] | undefined => {
+  if (value === undefined) return undefined;
+  return requireArray(value, 'shopping_spots', 50).map((entry) => {
+    const record = asRecord(entry);
+    return {
+      name: requireString(record.name, '購物點名稱', 200),
+      category: optionalString(record.category, '購物點分類', 50) || '',
+      description: optionalString(record.description, '購物點說明', 2000) || '',
+    };
+  });
+};
+
 router.post('/days/:dayId/items', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const dayId = req.params.dayId as string;
-    const {
-      time, title, description, address_jp, address_en,
-      lat, lng, transport_type, transport_detail, google_maps_query,
-      recommended_foods, nearby_spots, shopping_spots,
-    } = req.body;
-
-    // Verify ownership via chain
+    const body = asRecord(req.body);
     const day = await prisma.itineraryDay.findFirst({
-      where: {
-        id: dayId,
-        plan: { trip: { userId: req.user!.userId } },
-      },
+      where: { id: req.params.dayId, plan: { trip: { userId: req.user!.userId } } },
+      select: { id: true },
     });
     if (!day) {
       res.status(404).json({ error: '找不到此天' });
       return;
     }
 
-    const maxOrder = await prisma.itineraryItem.aggregate({
-      where: { dayId: day.id },
-      _max: { sortOrder: true },
-    });
-
+    const recommendedFoods = parseStringList(body.recommended_foods, 'recommended_foods') || [];
+    const nearbySpots = parseStringList(body.nearby_spots, 'nearby_spots') || [];
+    const shoppingSpots = parseShoppingList(body.shopping_spots) || [];
+    const maxOrder = await prisma.itineraryItem.aggregate({ where: { dayId: day.id }, _max: { sortOrder: true } });
     const item = await prisma.itineraryItem.create({
       data: {
         dayId: day.id,
-        time: time || '09:00',
-        title: title || '新行程',
-        description: description || '',
-        addressJp: address_jp || '',
-        addressEn: address_en || '',
-        lat: lat || 33.5902,
-        lng: lng || 130.4017,
-        transportType: transport_type || 'WALK',
-        transportDetail: transport_detail || '',
-        googleMapsQuery: google_maps_query || '',
+        time: parseTime(body.time, true)!,
+        title: requireString(body.title, 'title', 200),
+        description: optionalString(body.description, 'description', 5000) || '',
+        addressJp: optionalString(body.address_jp, 'address_jp', 300) || '',
+        addressEn: optionalString(body.address_en, 'address_en', 300) || '',
+        lat: requireFiniteNumber(body.lat, 'lat', -90, 90),
+        lng: requireFiniteNumber(body.lng, 'lng', -180, 180),
+        transportType: parseTransportType(body.transport_type, true)!,
+        transportDetail: optionalString(body.transport_detail, 'transport_detail', 200) || '',
+        googleMapsQuery: optionalString(body.google_maps_query, 'google_maps_query', 300) || '',
         sortOrder: (maxOrder._max.sortOrder ?? -1) + 1,
-        // Create sub-items
-        recommendedFoods: {
-          create: (recommended_foods || []).map((name: string, i: number) => ({
-            name,
-            sortOrder: i,
-          })),
-        },
-        nearbySpots: {
-          create: (nearby_spots || []).map((name: string, i: number) => ({
-            name,
-            sortOrder: i,
-          })),
-        },
-        shoppingSpots: {
-          create: (shopping_spots || []).map((s: any, i: number) => ({
-            name: s.name,
-            category: s.category || '',
-            description: s.description || '',
-            sortOrder: i,
-          })),
-        },
+        recommendedFoods: { create: recommendedFoods.map((name, sortOrder) => ({ name, sortOrder })) },
+        nearbySpots: { create: nearbySpots.map((name, sortOrder) => ({ name, sortOrder })) },
+        shoppingSpots: { create: shoppingSpots.map((spot, sortOrder) => ({ ...spot, sortOrder })) },
       },
-      include: {
-        recommendedFoods: { orderBy: { sortOrder: 'asc' } },
-        nearbySpots: { orderBy: { sortOrder: 'asc' } },
-        shoppingSpots: { orderBy: { sortOrder: 'asc' } },
-      },
+      include: itemInclude,
     });
-
     res.status(201).json(formatItem(item));
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
-/**
- * PUT /api/items/:itemId — 更新項目（含子項目 replace 策略）
- */
 router.put('/items/:itemId', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const itemId = req.params.itemId as string;
-    const {
-      time, title, description, address_jp, address_en,
-      lat, lng, transport_type, transport_detail, google_maps_query,
-      recommended_foods, nearby_spots, shopping_spots,
-    } = req.body;
-
-    // Verify ownership
+    const body = asRecord(req.body);
     const existing = await prisma.itineraryItem.findFirst({
-      where: {
-        id: itemId,
-        day: { plan: { trip: { userId: req.user!.userId } } },
-      },
+      where: { id: req.params.itemId, day: { plan: { trip: { userId: req.user!.userId } } } },
+      select: { id: true },
     });
     if (!existing) {
       res.status(404).json({ error: '找不到此行程項目' });
       return;
     }
 
-    // Transaction: update item + replace sub-items
+    const recommendedFoods = parseStringList(body.recommended_foods, 'recommended_foods');
+    const nearbySpots = parseStringList(body.nearby_spots, 'nearby_spots');
+    const shoppingSpots = parseShoppingList(body.shopping_spots);
     await prisma.$transaction(async (tx) => {
-      // Update main item
       await tx.itineraryItem.update({
-        where: { id: itemId },
+        where: { id: existing.id },
         data: {
-          ...(time !== undefined && { time }),
-          ...(title !== undefined && { title }),
-          ...(description !== undefined && { description }),
-          ...(address_jp !== undefined && { addressJp: address_jp }),
-          ...(address_en !== undefined && { addressEn: address_en }),
-          ...(lat !== undefined && { lat }),
-          ...(lng !== undefined && { lng }),
-          ...(transport_type !== undefined && { transportType: transport_type }),
-          ...(transport_detail !== undefined && { transportDetail: transport_detail }),
-          ...(google_maps_query !== undefined && { googleMapsQuery: google_maps_query }),
+          ...(body.time !== undefined && { time: parseTime(body.time, false) }),
+          ...(body.title !== undefined && { title: requireString(body.title, 'title', 200) }),
+          ...(body.description !== undefined && { description: optionalString(body.description, 'description', 5000) }),
+          ...(body.address_jp !== undefined && { addressJp: optionalString(body.address_jp, 'address_jp', 300) }),
+          ...(body.address_en !== undefined && { addressEn: optionalString(body.address_en, 'address_en', 300) }),
+          ...(body.lat !== undefined && { lat: requireFiniteNumber(body.lat, 'lat', -90, 90) }),
+          ...(body.lng !== undefined && { lng: requireFiniteNumber(body.lng, 'lng', -180, 180) }),
+          ...(body.transport_type !== undefined && { transportType: parseTransportType(body.transport_type, false) }),
+          ...(body.transport_detail !== undefined && { transportDetail: optionalString(body.transport_detail, 'transport_detail', 200) }),
+          ...(body.google_maps_query !== undefined && { googleMapsQuery: optionalString(body.google_maps_query, 'google_maps_query', 300) }),
         },
       });
 
-      // Replace sub-items if provided
-      if (recommended_foods !== undefined) {
-        await tx.recommendedFood.deleteMany({ where: { itemId } });
-        if (recommended_foods.length > 0) {
-          await tx.recommendedFood.createMany({
-            data: recommended_foods.map((name: string, i: number) => ({
-              itemId,
-              name,
-              sortOrder: i,
-            })),
-          });
-        }
+      if (recommendedFoods !== undefined) {
+        await tx.recommendedFood.deleteMany({ where: { itemId: existing.id } });
+        if (recommendedFoods.length) await tx.recommendedFood.createMany({ data: recommendedFoods.map((name, sortOrder) => ({ itemId: existing.id, name, sortOrder })) });
       }
-
-      if (nearby_spots !== undefined) {
-        await tx.nearbySpot.deleteMany({ where: { itemId } });
-        if (nearby_spots.length > 0) {
-          await tx.nearbySpot.createMany({
-            data: nearby_spots.map((name: string, i: number) => ({
-              itemId,
-              name,
-              sortOrder: i,
-            })),
-          });
-        }
+      if (nearbySpots !== undefined) {
+        await tx.nearbySpot.deleteMany({ where: { itemId: existing.id } });
+        if (nearbySpots.length) await tx.nearbySpot.createMany({ data: nearbySpots.map((name, sortOrder) => ({ itemId: existing.id, name, sortOrder })) });
       }
-
-      if (shopping_spots !== undefined) {
-        await tx.shoppingSpot.deleteMany({ where: { itemId } });
-        if (shopping_spots.length > 0) {
-          await tx.shoppingSpot.createMany({
-            data: shopping_spots.map((s: any, i: number) => ({
-              itemId,
-              name: s.name,
-              category: s.category || '',
-              description: s.description || '',
-              sortOrder: i,
-            })),
-          });
-        }
+      if (shoppingSpots !== undefined) {
+        await tx.shoppingSpot.deleteMany({ where: { itemId: existing.id } });
+        if (shoppingSpots.length) await tx.shoppingSpot.createMany({ data: shoppingSpots.map((spot, sortOrder) => ({ itemId: existing.id, ...spot, sortOrder })) });
       }
     });
 
-    // Fetch updated
-    const updated = await prisma.itineraryItem.findUnique({
-      where: { id: itemId },
-      include: {
-        recommendedFoods: { orderBy: { sortOrder: 'asc' } },
-        nearbySpots: { orderBy: { sortOrder: 'asc' } },
-        shoppingSpots: { orderBy: { sortOrder: 'asc' } },
-      },
-    });
-
+    const updated = await prisma.itineraryItem.findUniqueOrThrow({ where: { id: existing.id }, include: itemInclude });
     res.json(formatItem(updated));
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
-/**
- * DELETE /api/items/:itemId — 刪除項目
- */
 router.delete('/items/:itemId', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const itemId = req.params.itemId as string;
     const existing = await prisma.itineraryItem.findFirst({
-      where: {
-        id: itemId,
-        day: { plan: { trip: { userId: req.user!.userId } } },
-      },
+      where: { id: req.params.itemId, day: { plan: { trip: { userId: req.user!.userId } } } },
+      select: { id: true },
     });
     if (!existing) {
       res.status(404).json({ error: '找不到此行程項目' });
       return;
     }
-
-    await prisma.itineraryItem.delete({ where: { id: itemId } });
+    await prisma.itineraryItem.delete({ where: { id: existing.id } });
     res.json({ message: '項目已刪除' });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
-/**
- * PATCH /api/days/:dayId/items/reorder — 重新排序
- */
 router.patch('/days/:dayId/items/reorder', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { order } = req.body;
-
-    if (!Array.isArray(order)) {
-      res.status(400).json({ error: '請提供 order 陣列' });
+    const body = asRecord(req.body);
+    const order = requireArray(body.order, 'order', 100).map((entry) => {
+      const record = asRecord(entry);
+      const id = requireString(record.id, 'id', 100);
+      if (!Number.isInteger(record.sort_order) || (record.sort_order as number) < 0) throw new AppError('sort_order 格式錯誤', 400);
+      return { id, sortOrder: record.sort_order as number };
+    });
+    const ids = order.map((entry) => entry.id);
+    if (new Set(ids).size !== ids.length) {
+      res.status(400).json({ error: 'order 不可包含重複 id' });
       return;
     }
-
-    await prisma.$transaction(
-      order.map((item: { id: string; sort_order: number }) =>
-        prisma.itineraryItem.update({
-          where: { id: item.id },
-          data: { sortOrder: item.sort_order },
-        })
-      )
-    );
-
+    const ownedItems = await prisma.itineraryItem.findMany({
+      where: { id: { in: ids }, dayId: req.params.dayId, day: { plan: { trip: { userId: req.user!.userId } } } },
+      select: { id: true },
+    });
+    if (ownedItems.length !== order.length) {
+      res.status(403).json({ error: 'order 包含無權限的項目' });
+      return;
+    }
+    await prisma.$transaction(order.map((entry) => prisma.itineraryItem.update({ where: { id: entry.id }, data: { sortOrder: entry.sortOrder } })));
     res.json({ message: '排序已更新' });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
-
-// --- Helper ---
-function formatItem(item: any) {
-  return {
-    id: item.id,
-    time: item.time,
-    title: item.title,
-    description: item.description,
-    address_jp: item.addressJp,
-    address_en: item.addressEn,
-    lat: Number(item.lat),
-    lng: Number(item.lng),
-    transport_type: item.transportType,
-    transport_detail: item.transportDetail,
-    google_maps_query: item.googleMapsQuery,
-    sort_order: item.sortOrder,
-    recommended_foods: item.recommendedFoods?.map((f: any) => f.name) || [],
-    nearby_spots: item.nearbySpots?.map((s: any) => s.name) || [],
-    shopping_spots: item.shoppingSpots?.map((s: any) => ({
-      name: s.name,
-      category: s.category,
-      description: s.description,
-    })) || [],
-  };
-}
 
 export { router as itemsRouter };

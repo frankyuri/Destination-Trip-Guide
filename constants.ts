@@ -11,6 +11,7 @@ import { DayItinerary, TransportType } from './types';
 
 export const ITINERARY_DATA: DayItinerary[] = [
   {
+    isoDate: '2026-02-27',
     date: '2/27 (五)',
     dayTitle: 'Day 1',
     theme: '地標全制霸 & 鋼彈',
@@ -115,6 +116,7 @@ export const ITINERARY_DATA: DayItinerary[] = [
     ],
   },
   {
+    isoDate: '2026-02-28',
     date: '2/28 (六)',
     dayTitle: 'Day 2',
     theme: '跨海吃壽司 & 懷舊港口',
@@ -200,6 +202,7 @@ export const ITINERARY_DATA: DayItinerary[] = [
     ],
   },
   {
+    isoDate: '2026-03-01',
     date: '3/1 (日)',
     dayTitle: 'Day 3',
     theme: '太宰府賞梅 & 天神爆買',
@@ -274,6 +277,7 @@ export const ITINERARY_DATA: DayItinerary[] = [
     ],
   },
   {
+    isoDate: '2026-03-02',
     date: '3/2 (一)',
     dayTitle: 'Day 4',
     theme: '神社祈福 & 機場衝刺',

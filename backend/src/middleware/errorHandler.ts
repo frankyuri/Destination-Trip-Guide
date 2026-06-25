@@ -1,41 +1,40 @@
-/**
- * src/middleware/errorHandler.ts — 全域錯誤處理
- */
-import { Request, Response, NextFunction } from 'express';
+import { Prisma } from '@prisma/client';
+import { NextFunction, Request, Response } from 'express';
 
 export class AppError extends Error {
-  statusCode: number;
-
-  constructor(message: string, statusCode: number = 400) {
+  constructor(message: string, public readonly statusCode = 400) {
     super(message);
-    this.statusCode = statusCode;
     this.name = 'AppError';
   }
 }
 
 export const errorHandler = (
-  err: Error,
+  error: Error,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ): void => {
-  console.error('❌ Error:', err.message);
-
-  if (err instanceof AppError) {
-    res.status(err.statusCode).json({ error: err.message });
+  if (error instanceof AppError) {
+    res.status(error.statusCode).json({ error: error.message });
     return;
   }
 
-  // Prisma known errors
-  if ((err as any).code === 'P2002') {
-    res.status(409).json({ error: '資料已存在 (唯一鍵衝突)' });
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === 'P2002') {
+      res.status(409).json({ error: '資料已存在' });
+      return;
+    }
+    if (error.code === 'P2025') {
+      res.status(404).json({ error: '找不到指定的資料' });
+      return;
+    }
+  }
+
+  if (error.message.includes('來源不允許')) {
+    res.status(403).json({ error: error.message });
     return;
   }
 
-  if ((err as any).code === 'P2025') {
-    res.status(404).json({ error: '找不到指定的資料' });
-    return;
-  }
-
+  console.error('Unhandled API error:', error);
   res.status(500).json({ error: '伺服器內部錯誤' });
 };

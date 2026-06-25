@@ -76,7 +76,7 @@ const App: React.FC = () => {
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 pt-12 md:pt-20 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] md:text-xs font-bold tracking-widest uppercase mb-4 md:mb-6 shadow-glow">
-            <Plane size={12} /> 2025 Fukuoka Trip
+            <Plane size={12} /> 2026 Fukuoka Trip
           </div>
 
           <h1 className="text-3xl md:text-6xl font-black mb-3 md:mb-4 leading-tight tracking-tight">
@@ -94,8 +94,10 @@ const App: React.FC = () => {
               const isActive = activeDayIndex === index;
               return (
                 <button
+                  type="button"
                   key={day.dayTitle}
                   onClick={() => setActiveDayIndex(index)}
+                  aria-pressed={isActive}
                   className={`snap-center flex-shrink-0 group relative flex flex-col items-start justify-center p-3 md:p-4 min-w-[100px] md:min-w-[120px] rounded-2xl border transition-all duration-300 ${isActive
                     ? 'bg-white text-primary-900 shadow-xl scale-105 border-white'
                     : 'bg-white/10 text-white border-white/10 hover:bg-white/20'
@@ -136,7 +138,7 @@ const App: React.FC = () => {
 
           {/* Weather & Share */}
           <div className="flex items-center gap-3 flex-wrap justify-center">
-            <WeatherWidget date={activeDay.date} />
+            <WeatherWidget isoDate={activeDay.isoDate} />
             <ShareButton dayIndex={activeDayIndex} dayTitle={activeDay.dayTitle} />
           </div>
         </div>
@@ -155,6 +157,7 @@ const App: React.FC = () => {
                 <TimelineItem
                   key={item.id}
                   item={item}
+                  isoDate={activeDay.isoDate}
                   isLast={index === activeDay.items.length - 1}
                   onActive={setActiveItemId}
                 />
@@ -200,8 +203,10 @@ const App: React.FC = () => {
       {/* Mobile Floating Action Button (FAB) for View Toggle */}
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 lg:hidden">
         <button
+          type="button"
           onClick={() => setMobileViewMode(prev => prev === 'list' ? 'map' : 'list')}
-          className="flex items-center gap-2 bg-primary-900 text-white px-6 py-3 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/20 backdrop-blur-md"
+          aria-pressed={mobileViewMode === 'map'}
+          className="flex min-h-11 items-center gap-2 bg-primary-900 text-white px-6 py-3 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all border border-white/20 backdrop-blur-md"
         >
           {mobileViewMode === 'list' ? (
             <>

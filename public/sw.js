@@ -1,90 +1,71 @@
-const CACHE_NAME = 'fukuoka-trip-v1';
-const STATIC_ASSETS = [
-  '/Fukuoka-Trip-Guide/',
-  '/Fukuoka-Trip-Guide/index.html',
-];
+const VERSION = 'fukuoka-trip-v2';
+const APP_CACHE = `${VERSION}-app`;
+const TILE_CACHE = `${VERSION}-tiles`;
+const MAX_TILE_ENTRIES = 180;
+const BASE_PATH = new URL(self.registration.scope).pathname;
+const APP_SHELL = [BASE_PATH, `${BASE_PATH}index.html`, `${BASE_PATH}manifest.json`];
 
-// Tile URLs to cache for offline map support
-const MAP_TILE_CACHE = 'fukuoka-map-tiles-v1';
-
-// Install event - cache static assets
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Caching static assets');
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
+  event.waitUntil(caches.open(APP_CACHE).then((cache) => cache.addAll(APP_SHELL)));
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== MAP_TILE_CACHE)
-          .map((name) => caches.delete(name))
-      );
-    })
+    caches.keys()
+      .then((names) => Promise.all(names.filter((name) => ![APP_CACHE, TILE_CACHE].includes(name)).map((name) => caches.delete(name))))
+      .then(() => self.clients.claim()),
   );
-  self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+const trimTileCache = async () => {
+  const cache = await caches.open(TILE_CACHE);
+  const keys = await cache.keys();
+  await Promise.all(keys.slice(0, Math.max(0, keys.length - MAX_TILE_ENTRIES)).map((key) => cache.delete(key)));
+};
 
-  // Cache map tiles for offline use
-  if (url.hostname.includes('tile') || 
-      url.hostname.includes('basemaps') || 
-      url.hostname.includes('openstreetmap') ||
-      url.hostname.includes('arcgisonline')) {
-    event.respondWith(
-      caches.open(MAP_TILE_CACHE).then((cache) => {
-        return cache.match(event.request).then((response) => {
-          if (response) {
-            return response;
-          }
-          return fetch(event.request).then((networkResponse) => {
-            // Only cache successful responses
-            if (networkResponse.ok) {
-              cache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => {
-            // Return a placeholder for failed tile requests
-            return new Response('', { status: 404 });
-          });
-        });
-      })
-    );
+const networkFirst = async (request) => {
+  const cache = await caches.open(APP_CACHE);
+  try {
+    const response = await fetch(request);
+    if (response.ok) await cache.put(request, response.clone());
+    return response;
+  } catch {
+    return (await cache.match(request)) || (await cache.match(`${BASE_PATH}index.html`)) || new Response('離線中', { status: 503 });
+  }
+};
+
+const cacheFirst = async (request, cacheName) => {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok) {
+    await cache.put(request, response.clone());
+    if (cacheName === TILE_CACHE) await trimTileCache();
+  }
+  return response;
+};
+
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+
+  if (url.origin === self.location.origin && url.pathname.startsWith(`${BASE_PATH}api/`)) return;
+
+  const isMapTile = ['basemaps.cartocdn.com', 'server.arcgisonline.com', 'tile.opentopomap.org'].some((host) => url.hostname.endsWith(host));
+  if (isMapTile) {
+    event.respondWith(cacheFirst(request, TILE_CACHE).catch(() => new Response('', { status: 504 })));
     return;
   }
 
-  // For other requests, try cache first, then network
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        // Cache successful GET requests for static assets
-        if (event.request.method === 'GET' && networkResponse.ok) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      }).catch(() => {
-        // Offline fallback
-        if (event.request.destination === 'document') {
-          return caches.match('/Fukuoka-Trip-Guide/index.html') || new Response('離線中', { status: 503 });
-        }
-        return new Response('離線中', { status: 503 });
-      });
-    })
-  );
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  if (url.origin === self.location.origin && url.pathname.startsWith(BASE_PATH)) {
+    event.respondWith(cacheFirst(request, APP_CACHE));
+  }
 });

@@ -1,137 +1,106 @@
-/**
- * src/routes/exportImport.ts — 匯出 / 匯入
- */
-import { Router, Response, NextFunction } from 'express';
+import { Prisma, TransportType } from '@prisma/client';
+import { NextFunction, Response, Router } from 'express';
 import { prisma } from '../lib/prisma';
+import { asRecord, optionalString, requireArray, requireFiniteNumber, requireString } from '../lib/validation';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { AppError } from '../middleware/errorHandler';
 
 const router = Router();
 router.use(authenticate);
 
-/**
- * GET /api/plans/:planId/export/json — 匯出 JSON
- */
-router.get('/:planId/export/json', async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const planId = req.params.planId as string;
-    const plan = await prisma.itineraryPlan.findFirst({
-      where: {
-        id: planId,
-        trip: { userId: req.user!.userId },
-      },
-      include: {
-        days: {
-          orderBy: { sortOrder: 'asc' },
-          include: {
-            items: {
-              orderBy: { sortOrder: 'asc' },
-              include: {
-                recommendedFoods: { orderBy: { sortOrder: 'asc' } },
-                nearbySpots: { orderBy: { sortOrder: 'asc' } },
-                shoppingSpots: { orderBy: { sortOrder: 'asc' } },
-              },
-            },
-          },
+const planInclude = {
+  days: {
+    orderBy: { sortOrder: 'asc' as const },
+    include: {
+      items: {
+        orderBy: { sortOrder: 'asc' as const },
+        include: {
+          recommendedFoods: { orderBy: { sortOrder: 'asc' as const } },
+          nearbySpots: { orderBy: { sortOrder: 'asc' as const } },
+          shoppingSpots: { orderBy: { sortOrder: 'asc' as const } },
         },
       },
-    });
+    },
+  },
+} satisfies Prisma.ItineraryPlanInclude;
 
+type PlanExport = Prisma.ItineraryPlanGetPayload<{ include: typeof planInclude }>;
+
+const getOwnedPlan = (planId: string, userId: string) => prisma.itineraryPlan.findFirst({
+  where: { id: planId, trip: { userId } },
+  include: planInclude,
+});
+
+const formatItinerary = (plan: PlanExport) => plan.days.map((day) => ({
+  isoDate: day.isoDate.toISOString().slice(0, 10),
+  date: day.dateLabel,
+  dayTitle: day.dayTitle,
+  theme: day.theme,
+  focus: day.focus,
+  items: day.items.map((item) => ({
+    id: item.id,
+    time: item.time,
+    title: item.title,
+    description: item.description || '',
+    address_jp: item.addressJp || '',
+    address_en: item.addressEn || '',
+    coordinates: { lat: Number(item.lat), lng: Number(item.lng) },
+    transportType: item.transportType,
+    transportDetail: item.transportDetail || '',
+    googleMapsQuery: item.googleMapsQuery || '',
+    recommendedFood: item.recommendedFoods.map((food) => food.name),
+    nearbySpots: item.nearbySpots.map((spot) => spot.name),
+    shoppingSideQuests: item.shoppingSpots.map((spot) => ({ name: spot.name, category: spot.category, description: spot.description || '' })),
+  })),
+}));
+
+router.get('/:planId/export/json', async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const plan = await getOwnedPlan(req.params.planId, req.user!.userId);
     if (!plan) {
       res.status(404).json({ error: '找不到此方案' });
       return;
     }
-
-    // Format to match frontend DayItinerary[] structure
-    const itinerary = plan.days.map(day => ({
-      date: day.dateLabel,
-      dayTitle: day.dayTitle,
-      theme: day.theme,
-      focus: day.focus,
-      items: day.items.map(item => ({
-        id: item.id,
-        time: item.time,
-        title: item.title,
-        description: item.description || '',
-        address_jp: item.addressJp || '',
-        address_en: item.addressEn || '',
-        coordinates: { lat: Number(item.lat), lng: Number(item.lng) },
-        transportType: item.transportType,
-        transportDetail: item.transportDetail || '',
-        googleMapsQuery: item.googleMapsQuery || '',
-        recommendedFood: item.recommendedFoods.map(f => f.name),
-        nearbySpots: item.nearbySpots.map(s => s.name),
-        shoppingSideQuests: item.shoppingSpots.map(s => ({
-          name: s.name,
-          category: s.category,
-          description: s.description || '',
-        })),
-      })),
-    }));
-
-    const exportData = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      plan: plan.planName,
-      itinerary,
-    };
-
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', `attachment; filename="fukuoka-trip-${plan.planName}.json"`);
-    res.json(exportData);
-  } catch (err) {
-    next(err);
+    const filename = plan.planName.replace(/[^\p{L}\p{N}_-]+/gu, '-').slice(0, 50) || 'trip';
+    res.setHeader('Content-Disposition', `attachment; filename="fukuoka-${filename}.json"`);
+    res.json({ version: 2, exportedAt: new Date().toISOString(), plan: plan.planName, itinerary: formatItinerary(plan) });
+  } catch (error) {
+    next(error);
   }
 });
 
-/**
- * GET /api/plans/:planId/export/ics — 匯出 ICS 日曆
- */
+const escapeICS = (value: string): string => value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+const formatUtc = (date: Date): string => date.toISOString().replace(/[-:]|\.\d{3}/g, '');
+const localDateTime = (isoDate: string, time: string): string => `${isoDate.replace(/-/g, '')}T${time.replace(':', '')}00`;
+
+const addLocalMinutes = (isoDate: string, time: string, minutes: number): { isoDate: string; time: string } => {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const [hour, minute] = time.split(':').map(Number);
+  const result = new Date(Date.UTC(year, month - 1, day, hour, minute + minutes));
+  return {
+    isoDate: result.toISOString().slice(0, 10),
+    time: `${String(result.getUTCHours()).padStart(2, '0')}:${String(result.getUTCMinutes()).padStart(2, '0')}`,
+  };
+};
+
 router.get('/:planId/export/ics', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const planId = req.params.planId as string;
-    const plan = await prisma.itineraryPlan.findFirst({
-      where: {
-        id: planId,
-        trip: { userId: req.user!.userId },
-      },
-      include: {
-        days: {
-          orderBy: { sortOrder: 'asc' },
-          include: {
-            items: { orderBy: { sortOrder: 'asc' } },
-          },
-        },
-      },
-    });
-
+    const plan = await getOwnedPlan(req.params.planId, req.user!.userId);
     if (!plan) {
       res.status(404).json({ error: '找不到此方案' });
       return;
     }
-
     const now = new Date();
-    const currentYear = now.getFullYear();
-
-    const events = plan.days.flatMap(day => {
-      const dateMatch = day.dateLabel.match(/(\d{1,2})\/(\d{1,2})/);
-      if (!dateMatch) return [];
-
-      const month = parseInt(dateMatch[1], 10);
-      const dayNum = parseInt(dateMatch[2], 10);
-      const tentativeDate = new Date(currentYear, month - 1, dayNum);
-      const year = tentativeDate < now ? currentYear + 1 : currentYear;
-
-      return day.items.map(item => {
-        const [hours, minutes] = item.time.split(':').map(Number);
-        const startDate = new Date(year, month - 1, dayNum, hours, minutes);
-        const endDate = new Date(startDate.getTime() + 90 * 60000);
-
+    const events = plan.days.flatMap((day) => {
+      const isoDate = day.isoDate.toISOString().slice(0, 10);
+      return day.items.map((item) => {
+        const end = addLocalMinutes(isoDate, item.time, 90);
         return [
           'BEGIN:VEVENT',
-          `UID:${item.id}@fukuokatrip.com`,
-          `DTSTAMP:${formatICSDate(now)}`,
-          `DTSTART:${formatICSDate(startDate)}`,
-          `DTEND:${formatICSDate(endDate)}`,
+          `UID:${escapeICS(item.id)}@fukuoka-trip-guide`,
+          `DTSTAMP:${formatUtc(now)}`,
+          `DTSTART;TZID=Asia/Tokyo:${localDateTime(isoDate, item.time)}`,
+          `DTEND;TZID=Asia/Tokyo:${localDateTime(end.isoDate, end.time)}`,
           `SUMMARY:${escapeICS(item.title)}`,
           `DESCRIPTION:${escapeICS(item.description || '')}`,
           `LOCATION:${escapeICS(item.addressJp || '')}`,
@@ -139,122 +108,115 @@ router.get('/:planId/export/ics', async (req: AuthRequest, res: Response, next: 
         ].join('\r\n');
       });
     });
-
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Fukuoka Trip Guide//EN',
-      'CALSCALE:GREGORIAN',
-      'METHOD:PUBLISH',
-      'X-WR-CALNAME:Fukuoka Trip',
-      ...events,
-      'END:VCALENDAR',
+    const content = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Fukuoka Trip Guide//ZH-TW', 'CALSCALE:GREGORIAN',
+      'BEGIN:VTIMEZONE', 'TZID:Asia/Tokyo', 'BEGIN:STANDARD', 'DTSTART:19700101T000000', 'TZOFFSETFROM:+0900', 'TZOFFSETTO:+0900', 'TZNAME:JST', 'END:STANDARD', 'END:VTIMEZONE',
+      ...events, 'END:VCALENDAR',
     ].join('\r\n');
-
     res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="fukuoka-trip.ics"');
-    res.send(icsContent);
-  } catch (err) {
-    next(err);
+    res.send(content);
+  } catch (error) {
+    next(error);
   }
 });
 
-/**
- * POST /api/plans/:planId/import/json — 匯入 JSON
- */
+interface ShoppingInput { name: string; category: string; description: string }
+interface ImportedItem {
+  time: string; title: string; description: string; addressJp: string; addressEn: string;
+  lat: number; lng: number; transportType: TransportType; transportDetail: string; googleMapsQuery: string;
+  recommendedFoods: string[]; nearbySpots: string[]; shoppingSpots: ShoppingInput[];
+}
+interface ImportedDay { isoDate: string; dateLabel: string; dayTitle: string; theme: string; focus: string; items: ImportedItem[] }
+
+const isValidISODate = (value: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
+};
+
+const isValidTime = (value: string): boolean => /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
+
+const parseStringList = (value: unknown, field: string): string[] => requireArray(value ?? [], field, 50).map((entry) => requireString(entry, field, 200));
+
+const parseImport = (value: unknown): ImportedDay[] => requireArray(value, 'itinerary', 31).map((dayValue, dayIndex) => {
+  const day = asRecord(dayValue);
+  const isoDate = requireString(day.isoDate ?? day.iso_date, `第 ${dayIndex + 1} 天 isoDate`, 10);
+  if (!isValidISODate(isoDate)) throw new AppError(`第 ${dayIndex + 1} 天日期格式錯誤`, 400);
+  const items = requireArray(day.items ?? [], 'items', 100).map((itemValue, itemIndex): ImportedItem => {
+    const item = asRecord(itemValue);
+    const coordinates = item.coordinates === undefined ? {} : asRecord(item.coordinates);
+    const transportValue = item.transportType ?? item.transport_type ?? 'WALK';
+    if (typeof transportValue !== 'string' || !Object.values(TransportType).includes(transportValue as TransportType)) throw new AppError(`第 ${dayIndex + 1} 天第 ${itemIndex + 1} 筆交通格式錯誤`, 400);
+    const shopping = requireArray(item.shoppingSideQuests ?? item.shopping_spots ?? [], 'shopping_spots', 50).map((spotValue): ShoppingInput => {
+      const spot = asRecord(spotValue);
+      return { name: requireString(spot.name, '購物點名稱', 200), category: optionalString(spot.category, '分類', 50) || '', description: optionalString(spot.description, '說明', 2000) || '' };
+    });
+    const time = requireString(item.time, 'time', 5);
+    if (!isValidTime(time)) throw new AppError(`第 ${dayIndex + 1} 天第 ${itemIndex + 1} 筆時間格式錯誤`, 400);
+    return {
+      time,
+      title: requireString(item.title, 'title', 200),
+      description: optionalString(item.description, 'description', 5000) || '',
+      addressJp: optionalString(item.address_jp, 'address_jp', 300) || '',
+      addressEn: optionalString(item.address_en, 'address_en', 300) || '',
+      lat: requireFiniteNumber(coordinates.lat ?? item.lat, 'lat', -90, 90),
+      lng: requireFiniteNumber(coordinates.lng ?? item.lng, 'lng', -180, 180),
+      transportType: transportValue as TransportType,
+      transportDetail: optionalString(item.transportDetail ?? item.transport_detail, 'transport_detail', 200) || '',
+      googleMapsQuery: optionalString(item.googleMapsQuery ?? item.google_maps_query, 'google_maps_query', 300) || '',
+      recommendedFoods: parseStringList(item.recommendedFood ?? item.recommended_foods, 'recommended_foods'),
+      nearbySpots: parseStringList(item.nearbySpots ?? item.nearby_spots, 'nearby_spots'),
+      shoppingSpots: shopping,
+    };
+  });
+  return {
+    isoDate,
+    dateLabel: optionalString(day.date ?? day.date_label, '日期標籤', 20) || isoDate,
+    dayTitle: optionalString(day.dayTitle ?? day.day_title, '天數標題', 20) || `Day ${dayIndex + 1}`,
+    theme: optionalString(day.theme, '主題', 100) || '',
+    focus: optionalString(day.focus, '重點', 200) || '',
+    items,
+  };
+});
+
 router.post('/:planId/import/json', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const planId = req.params.planId as string;
-    const { itinerary } = req.body;
-
-    if (!Array.isArray(itinerary)) {
-      res.status(400).json({ error: 'itinerary 必須為陣列' });
-      return;
-    }
-
-    // Verify ownership
+    const body = asRecord(req.body);
+    const itinerary = parseImport(body.itinerary);
     const plan = await prisma.itineraryPlan.findFirst({
-      where: {
-        id: planId,
-        trip: { userId: req.user!.userId },
-      },
+      where: { id: req.params.planId, trip: { userId: req.user!.userId } },
+      select: { id: true },
     });
     if (!plan) {
       res.status(404).json({ error: '找不到此方案' });
       return;
     }
 
-    // Clear existing days for this plan
-    await prisma.itineraryDay.deleteMany({ where: { planId: plan.id } });
-
-    // Import all days
-    for (let di = 0; di < itinerary.length; di++) {
-      const dayData = itinerary[di];
-      const day = await prisma.itineraryDay.create({
-        data: {
-          planId: plan.id,
-          dateLabel: dayData.date || dayData.date_label || `Day ${di + 1}`,
-          dayTitle: dayData.dayTitle || dayData.day_title || `Day ${di + 1}`,
-          theme: dayData.theme || '',
-          focus: dayData.focus || '',
-          sortOrder: di,
-        },
-      });
-
-      for (let ii = 0; ii < (dayData.items || []).length; ii++) {
-        const itemData = dayData.items[ii];
-        await prisma.itineraryItem.create({
-          data: {
-            dayId: day.id,
-            time: itemData.time || '09:00',
-            title: itemData.title || '',
-            description: itemData.description || '',
-            addressJp: itemData.address_jp || '',
-            addressEn: itemData.address_en || '',
-            lat: itemData.coordinates?.lat || itemData.lat || 33.5902,
-            lng: itemData.coordinates?.lng || itemData.lng || 130.4017,
-            transportType: itemData.transportType || itemData.transport_type || 'WALK',
-            transportDetail: itemData.transportDetail || itemData.transport_detail || '',
-            googleMapsQuery: itemData.googleMapsQuery || itemData.google_maps_query || '',
-            sortOrder: ii,
-            recommendedFoods: {
-              create: (itemData.recommendedFood || itemData.recommended_foods || []).map(
-                (name: string, i: number) => ({ name, sortOrder: i })
-              ),
-            },
-            nearbySpots: {
-              create: (itemData.nearbySpots || itemData.nearby_spots || []).map(
-                (name: string, i: number) => ({ name, sortOrder: i })
-              ),
-            },
-            shoppingSpots: {
-              create: (itemData.shoppingSideQuests || itemData.shopping_spots || []).map(
-                (s: any, i: number) => ({
-                  name: s.name,
-                  category: s.category || '',
-                  description: s.description || '',
-                  sortOrder: i,
-                })
-              ),
-            },
-          },
+    await prisma.$transaction(async (tx) => {
+      await tx.itineraryDay.deleteMany({ where: { planId: plan.id } });
+      for (const [dayIndex, dayData] of itinerary.entries()) {
+        const day = await tx.itineraryDay.create({
+          data: { planId: plan.id, isoDate: new Date(`${dayData.isoDate}T00:00:00.000Z`), dateLabel: dayData.dateLabel, dayTitle: dayData.dayTitle, theme: dayData.theme, focus: dayData.focus, sortOrder: dayIndex },
         });
+        for (const [itemIndex, item] of dayData.items.entries()) {
+          await tx.itineraryItem.create({
+            data: {
+              dayId: day.id, time: item.time, title: item.title, description: item.description, addressJp: item.addressJp, addressEn: item.addressEn,
+              lat: item.lat, lng: item.lng, transportType: item.transportType, transportDetail: item.transportDetail, googleMapsQuery: item.googleMapsQuery, sortOrder: itemIndex,
+              recommendedFoods: { create: item.recommendedFoods.map((name, sortOrder) => ({ name, sortOrder })) },
+              nearbySpots: { create: item.nearbySpots.map((name, sortOrder) => ({ name, sortOrder })) },
+              shoppingSpots: { create: item.shoppingSpots.map((spot, sortOrder) => ({ ...spot, sortOrder })) },
+            },
+          });
+        }
       }
-    }
-
+    });
     res.json({ message: '匯入成功', days_imported: itinerary.length });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
-
-// --- Helpers ---
-function formatICSDate(date: Date): string {
-  return date.toISOString().replace(/-|:|\.\d+/g, '');
-}
-
-function escapeICS(text: string): string {
-  return text.replace(/[\\;,]/g, (c) => `\\${c}`).replace(/\n/g, '\\n');
-}
 
 export { router as exportRouter };

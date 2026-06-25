@@ -44,6 +44,7 @@ model Trip {
   user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   plans ItineraryPlan[]
 
+  @@index([userId])
   @@map("trips")
 }
 
@@ -62,6 +63,7 @@ model ItineraryPlan {
   trip Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
   days ItineraryDay[]
 
+  @@index([tripId, sortOrder])
   @@map("itinerary_plans")
 }
 
@@ -71,6 +73,7 @@ model ItineraryPlan {
 model ItineraryDay {
   id        String   @id @default(uuid())
   planId    String   @map("plan_id")
+  isoDate   DateTime @map("iso_date") @db.Date
   dateLabel String   @map("date_label") @db.VarChar(20)
   dayTitle  String   @map("day_title") @db.VarChar(20)
   theme     String   @db.VarChar(100)
@@ -82,6 +85,7 @@ model ItineraryDay {
   plan  ItineraryPlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
   items ItineraryItem[]
 
+  @@index([planId, sortOrder])
   @@map("itinerary_days")
 }
 
@@ -111,6 +115,7 @@ model ItineraryItem {
   shoppingSpots    ShoppingSpot[]
   progress         Progress[]
 
+  @@index([dayId, sortOrder])
   @@map("itinerary_items")
 }
 
@@ -134,6 +139,7 @@ model RecommendedFood {
 
   item ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
+  @@index([itemId, sortOrder])
   @@map("recommended_foods")
 }
 
@@ -148,6 +154,7 @@ model NearbySpot {
 
   item ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
+  @@index([itemId, sortOrder])
   @@map("nearby_spots")
 }
 
@@ -164,6 +171,7 @@ model ShoppingSpot {
 
   item ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
+  @@index([itemId, sortOrder])
   @@map("shopping_spots")
 }
 
@@ -181,5 +189,6 @@ model Progress {
   item ItineraryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@unique([userId, itemId])
+  @@index([itemId])
   @@map("progress")
 }

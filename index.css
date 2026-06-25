@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Noto Sans JP", sans-serif;
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-900: #312e81;
+  --color-accent-red: #be123c;
+  --color-accent-pink: #fdf2f8;
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --shadow-soft: 0 4px 20px -2px rgb(0 0 0 / 5%);
+  --shadow-card: 0 10px 40px -10px rgb(0 0 0 / 8%);
+  --shadow-glow: 0 0 15px rgb(99 102 241 / 30%);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-marker-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  transform: rotate(-45deg);
+  border: 2px solid white;
+  border-radius: 50% 50% 50% 0;
+  background: #4f46e5;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.custom-marker-pin::after {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: 8px 0 0 8px;
+  border-radius: 50%;
+  background: #fff;
+  content: '';
+}
+
+:focus-visible {
+  outline: 3px solid #818cf8;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
