@@ -13,7 +13,7 @@ const [constants, viteConfig, gemini, calendar, serviceWorker, manifest, indexHt
 ]);
 
 const isoDates = [...constants.matchAll(/isoDate:\s*'([^']+)'/g)].map((match) => match[1]);
-assert.deepEqual(isoDates, ['2026-02-27', '2026-02-28', '2026-03-01', '2026-03-02']);
+assert.deepEqual(isoDates, ['2026-08-27', '2026-08-28', '2026-08-29', '2026-08-30', '2026-08-31']);
 const ids = [...constants.matchAll(/id:\s*'([^']+)'/g)].map((match) => match[1]);
 assert.equal(new Set(ids).size, ids.length, '行程 item id 不可重複');
 assert.equal(viteConfig.includes('GEMINI_API_KEY'), false, 'Vite 不可把 Gemini 金鑰注入前端');
