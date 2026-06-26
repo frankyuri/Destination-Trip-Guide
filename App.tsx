@@ -76,14 +76,14 @@ const App: React.FC = () => {
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 pt-12 md:pt-20 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] md:text-xs font-bold tracking-widest uppercase mb-4 md:mb-6 shadow-glow">
-            <Plane size={12} /> 2026 Fukuoka Trip
+            <Plane size={12} /> My Trip
           </div>
 
           <h1 className="text-3xl md:text-6xl font-black mb-3 md:mb-4 leading-tight tracking-tight">
-            福岡<span className="text-primary-300">充實</span>之旅
+            專屬<span className="text-primary-300">完美</span>之旅
           </h1>
           <p className="text-primary-100 max-w-lg mx-auto text-xs md:text-lg font-light opacity-90 mb-6 md:mb-8 px-4 leading-relaxed">
-            從博多地標到門司港懷舊，為您量身打造的 4 天 3 夜完美行程。
+            為您量身打造的專屬行程。
           </p>
         </div>
 
