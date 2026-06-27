@@ -22,7 +22,7 @@ export const en: Record<TranslationKeys, string> = {
   import: 'Import',
 
   // === App ===
-  appTitle: 'Fukuoka Trip',
+  appTitle: 'Destination Trip',
   appSubtitle: 'Complete Travel Guide',
   editMode: 'Edit Mode',
   exitEdit: 'Exit Edit',
@@ -68,7 +68,7 @@ export const en: Record<TranslationKeys, string> = {
   weatherForecast: 'Forecast',
   weatherOffline: 'Offline',
   weatherUpdating: 'Updating...',
-  weatherCity: 'Fukuoka',
+  weatherCity: 'Destination',
 
   // === Weather Conditions ===
   weatherClear: 'Clear',
@@ -81,7 +81,7 @@ export const en: Record<TranslationKeys, string> = {
   weatherThunder: 'Thunderstorm',
 
   // === CountdownWidget ===
-  countdownTitle: 'Fukuoka Trip',
+  countdownTitle: 'Destination Trip',
   countdownDeparture: 'Departure',
   countdownDays: 'days',
   countdownCountingDown: 'Countdown',
@@ -137,7 +137,7 @@ export const en: Record<TranslationKeys, string> = {
   tipJapaneseAddress: 'Japanese address',
   tipHotelTitle: 'Hotel Location',
   tipHotelDesc: 'Hotel WBF Grande Hakata is within walking distance of Hakata Station Chikushi Exit. For taxis, show the Japanese address to the driver.',
-  tripDateRange: '2/27 (Fri) - 3/2 (Mon) Fukuoka Trip',
+  tripDateRange: '2/27 (Fri) - 3/2 (Mon) Destination Trip',
 
   // === ErrorBoundary ===
   errorTitle: 'Something went wrong',

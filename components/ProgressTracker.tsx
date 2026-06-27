@@ -59,7 +59,7 @@ export const useProgressTracker = () => {
      */
     useEffect(() => {
         // 從 localStorage 讀取進度資料
-        const saved = localStorage.getItem('fukuoka_trip_progress');
+        const saved = localStorage.getItem('destination_trip_progress');
         if (saved) {
             try {
                 // 解析 JSON 並轉換成 Set
@@ -94,7 +94,7 @@ export const useProgressTracker = () => {
 
             // 將更新後的進度儲存到 localStorage
             // Set 需要先轉換成陣列才能 JSON 序列化
-            localStorage.setItem('fukuoka_trip_progress', JSON.stringify([...newSet]));
+            localStorage.setItem('destination_trip_progress', JSON.stringify([...newSet]));
 
             return newSet;
         });
@@ -130,7 +130,7 @@ export const useProgressTracker = () => {
      */
     const resetProgress = useCallback(() => {
         setCompletedItems(new Set());
-        localStorage.removeItem('fukuoka_trip_progress');
+        localStorage.removeItem('destination_trip_progress');
     }, []);
 
     return { toggleItem, isCompleted, getProgress, resetProgress, completedItems };

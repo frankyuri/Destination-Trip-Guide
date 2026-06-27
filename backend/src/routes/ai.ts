@@ -14,7 +14,7 @@ router.post('/place-insight', optionalAuth, async (req: Request, res: Response, 
       return;
     }
 
-    const prompt = `你是熟悉福岡與北九州的在地旅遊嚮導。請針對「${placeName}」提供一個具體、實用且可查證的隱藏密技。使用台灣繁體中文，60 字以內；如果不確定就明確說明，不要捏造營業資訊。`;
+    const prompt = `你是熟悉目的地與北九州的在地旅遊嚮導。請針對「${placeName}」提供一個具體、實用且可查證的隱藏密技。使用台灣繁體中文，60 字以內；如果不確定就明確說明，不要捏造營業資訊。`;
     const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15_000);

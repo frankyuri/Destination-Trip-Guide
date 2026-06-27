@@ -1,7 +1,7 @@
 {
-  "name": "2026 福岡之旅",
-  "short_name": "福岡行程",
-  "description": "福岡 4 天 3 夜旅遊行程規劃指南",
+  "name": "2026 目的地之旅",
+  "short_name": "目的地行程",
+  "description": "目的地 4 天 3 夜旅遊行程規劃指南",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

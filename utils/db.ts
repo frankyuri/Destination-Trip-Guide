@@ -2,7 +2,7 @@ import { DayItinerary } from '../types';
 import { ITINERARY_DATA } from '../constants';
 import { ItineraryPlanType, loadItineraryData2 } from './dataLoader';
 
-const DB_NAME = 'fukuoka-trip-db';
+const DB_NAME = 'destination-trip-db';
 const STORE_NAME = 'itineraries';
 const STORE_NAME_2 = 'itineraries2'; // 備選二的 store
 const DB_VERSION = 2; // 升級版本以支援新 store

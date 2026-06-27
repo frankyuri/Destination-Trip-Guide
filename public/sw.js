@@ -1,4 +1,4 @@
-const VERSION = 'fukuoka-trip-v2';
+const VERSION = 'destination-trip-v2';
 const APP_CACHE = `${VERSION}-app`;
 const TILE_CACHE = `${VERSION}-tiles`;
 const MAX_TILE_ENTRIES = 180;

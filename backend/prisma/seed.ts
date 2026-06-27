@@ -7,10 +7,10 @@ const prisma = new PrismaClient();
 async function main() {
   const demoPassword = process.env.DEMO_PASSWORD || 'demo1234';
   const user = await prisma.user.upsert({
-    where: { email: 'demo@fukuokatrip.com' },
+    where: { email: 'demo@destinationtrip.com' },
     update: {},
     create: {
-      email: 'demo@fukuokatrip.com',
+      email: 'demo@destinationtrip.com',
       passwordHash: await bcrypt.hash(demoPassword, 12),
       displayName: '旅人 Demo',
       locale: 'zh-TW',
@@ -18,17 +18,17 @@ async function main() {
   });
 
   const trip = await prisma.trip.upsert({
-    where: { id: 'seed-trip-fukuoka-2026' },
+    where: { id: 'seed-trip-destination-2026' },
     update: {
-      name: '2026 福岡之旅',
+      name: '2026 目的地之旅',
       startDate: new Date('2026-02-27T00:00:00.000Z'),
       endDate: new Date('2026-03-02T00:00:00.000Z'),
     },
     create: {
-      id: 'seed-trip-fukuoka-2026',
+      id: 'seed-trip-destination-2026',
       userId: user.id,
-      name: '2026 福岡之旅',
-      description: '四天三夜福岡深度遊',
+      name: '2026 目的地之旅',
+      description: '四天三夜目的地深度遊',
       startDate: new Date('2026-02-27T00:00:00.000Z'),
       endDate: new Date('2026-03-02T00:00:00.000Z'),
     },

@@ -4,7 +4,7 @@
  * 功能：
  * - 顯示距離出發還有幾天
  * - 旅途進行中時顯示「旅途進行中！」
- * - 根據福岡即時天氣提供穿搭建議
+ * - 根據目的地即時天氣提供穿搭建議
  * - 自動判斷年份（如果日期已過，假設是明年）
  */
 
@@ -240,7 +240,7 @@ export const CountdownWidget: React.FC<CountdownWidgetProps> = ({
                         <Plane size={18} className="text-indigo-600" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-indigo-800">福岡之旅</h3>
+                        <h3 className="text-sm font-bold text-indigo-800">目的地之旅</h3>
                         <p className="text-[10px] text-indigo-500">{tripStartDate} 出發</p>
                     </div>
                 </div>

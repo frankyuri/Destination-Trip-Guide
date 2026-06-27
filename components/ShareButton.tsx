@@ -45,8 +45,8 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ dayIndex, dayTitle }) 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `福岡之旅 - ${dayTitle}`,
-          text: `查看我的福岡旅遊行程：${dayTitle}`,
+          title: `目的地之旅 - ${dayTitle}`,
+          text: `查看我的目的地旅遊行程：${dayTitle}`,
           url: getShareUrl(),
         });
         return;
@@ -111,7 +111,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ dayIndex, dayTitle }) 
             </button>
 
             <a
-              href={`https://line.me/R/msg/text/?${encodeURIComponent(`查看我的福岡旅遊行程：${dayTitle}\n${getShareUrl()}`)}`}
+              href={`https://line.me/R/msg/text/?${encodeURIComponent(`查看我的目的地旅遊行程：${dayTitle}\n${getShareUrl()}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 flex min-h-11 w-full items-center gap-3 rounded-lg bg-[#00B900] p-3 text-white transition-all hover:bg-[#00A000]"

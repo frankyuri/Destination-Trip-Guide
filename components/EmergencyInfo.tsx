@@ -64,7 +64,7 @@ const emergencyContacts: EmergencyContact[] = [
         color: 'red'
     },
     {
-        label: '台北駐日經濟文化代表處 (福岡)',
+        label: '台北駐日經濟文化代表處 (目的地)',
         number: '+81-92-734-2810',
         description: '週一至週五 9:00-12:00, 13:00-18:00',
         icon: <Building2 size={18} />,
@@ -100,7 +100,7 @@ const emergencyContacts: EmergencyContact[] = [
 const hotelInfo = {
     name: 'Hotel WBF Grande Hakata',       // 英文名稱
     nameJp: 'ホテルWBFグランデ博多',        // 日文名稱（給計程車司機看）
-    address: '福岡市博多区博多駅南 2-2-5',   // 日文地址
+    address: '目的地市博多区博多駅南 2-2-5',   // 日文地址
     phone: '+81-92-433-3900',               // 飯店電話
     checkIn: '15:00',                        // 入住時間
     checkOut: '10:00'                        // 退房時間

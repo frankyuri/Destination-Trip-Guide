@@ -7,11 +7,11 @@
 
 import { useState, useEffect } from 'react';
 
-// Fukuoka coordinates
-const FUKUOKA_LAT = 33.5902;
-const FUKUOKA_LNG = 130.4017;
+// Destination coordinates
+const DESTINATION_LAT = 33.5902;
+const DESTINATION_LNG = 130.4017;
 
-const CACHE_KEY = 'weather_cache_fukuoka_v2';
+const CACHE_KEY = 'weather_cache_destination_v2';
 const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours
 
 export interface WeatherData {
@@ -56,7 +56,7 @@ const fetchWeatherData = async (): Promise<WeatherData | null> => {
     try {
       const response = await fetch(
         `https://api.open-meteo.com/v1/forecast?` +
-        `latitude=${FUKUOKA_LAT}&longitude=${FUKUOKA_LNG}&` +
+        `latitude=${DESTINATION_LAT}&longitude=${DESTINATION_LNG}&` +
         `current=temperature_2m,weather_code&` +
         `daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&` +
         `timezone=Asia%2FTokyo`

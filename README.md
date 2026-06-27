@@ -1,6 +1,6 @@
-# Fukuoka Trip Guide
+# Destination Trip Guide
 
-2026 年 2 月 27 日至 3 月 2 日的福岡四天三夜互動行程。前端使用 React、TypeScript、Vite、Leaflet；後端使用 Express、Prisma 與 PostgreSQL。
+日本行程。前端使用 React、TypeScript、Vite、Leaflet；後端使用 Express、Prisma 與 PostgreSQL。
 
 ## 功能
 
@@ -22,7 +22,7 @@ copy .env.example .env.local
 npm run dev
 ```
 
-預設網址：`http://localhost:3000/Fukuoka-Trip-Guide/`
+預設網址：`http://localhost:3000/Destination-Trip-Guide/`
 
 常用指令：
 
@@ -37,7 +37,7 @@ npm run check
 
 - `VITE_API_BASE_URL`：後端 origin，例如 `http://localhost:3001`
 - `VITE_GOOGLE_PLACES_API_KEY`：選用；必須在 Google Cloud 限制 HTTP referrer 與 Places API
-- `VITE_BASE_PATH`：部署子路徑，預設 `/Fukuoka-Trip-Guide/`
+- `VITE_BASE_PATH`：部署子路徑，預設 `/Destination-Trip-Guide/`
 
 ## 後端開發
 
