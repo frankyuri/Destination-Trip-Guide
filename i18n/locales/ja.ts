@@ -22,7 +22,7 @@ export const ja: Record<TranslationKeys, string> = {
   import: 'インポート',
 
   // === App ===
-  appTitle: '福岡旅行',
+  appTitle: '目的地旅行',
   appSubtitle: '旅行ガイド',
   editMode: '編集モード',
   exitEdit: '編集終了',
@@ -68,7 +68,7 @@ export const ja: Record<TranslationKeys, string> = {
   weatherForecast: '予報',
   weatherOffline: 'オフライン',
   weatherUpdating: '更新中...',
-  weatherCity: '福岡',
+  weatherCity: '目的地',
 
   // === 天気 ===
   weatherClear: '晴れ',
@@ -81,7 +81,7 @@ export const ja: Record<TranslationKeys, string> = {
   weatherThunder: '雷雨',
 
   // === CountdownWidget ===
-  countdownTitle: '福岡旅行',
+  countdownTitle: '目的地旅行',
   countdownDeparture: '出発',
   countdownDays: '日',
   countdownCountingDown: 'カウントダウン',
@@ -137,7 +137,7 @@ export const ja: Record<TranslationKeys, string> = {
   tipJapaneseAddress: '日本語住所',
   tipHotelTitle: 'ホテルの場所',
   tipHotelDesc: 'Hotel WBF Grande Hakataは博多駅筑紫口から徒歩圏内です。タクシーの場合は日本語の住所を運転手に見せてください。',
-  tripDateRange: '2/27 (金) - 3/2 (月) 福岡旅行',
+  tripDateRange: '2/27 (金) - 3/2 (月) 目的地旅行',
 
   // === ErrorBoundary ===
   errorTitle: '問題が発生しました',

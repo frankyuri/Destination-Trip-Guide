@@ -111,7 +111,7 @@ export const searchPlacePhoto = async (
 
   // 3. 呼叫 API
   try {
-    const query = encodeURIComponent(`${placeName} Fukuoka Japan`);
+    const query = encodeURIComponent(`${placeName} Destination Japan`);
     const response = await fetch(
       `https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape&content_filter=high`,
       {
@@ -142,8 +142,8 @@ export const searchPlacePhoto = async (
       url: photo.urls?.regular || photo.urls?.small,
       smallUrl: photo.urls?.small || photo.urls?.thumb,
       photographer: photo.user?.name || 'Unknown',
-      photographerUrl: `${photo.user?.links?.html || 'https://unsplash.com'}?utm_source=fukuoka_trip_guide&utm_medium=referral`,
-      photoLink: `${photo.links?.html || 'https://unsplash.com'}?utm_source=fukuoka_trip_guide&utm_medium=referral`,
+      photographerUrl: `${photo.user?.links?.html || 'https://unsplash.com'}?utm_source=destination_trip_guide&utm_medium=referral`,
+      photoLink: `${photo.links?.html || 'https://unsplash.com'}?utm_source=destination_trip_guide&utm_medium=referral`,
       width: photo.width || 1080,
       height: photo.height || 720,
     };

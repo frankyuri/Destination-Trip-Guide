@@ -36,7 +36,7 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-primary-300">
-            <span>2026/2/27 (五) - 3/2 (一) 福岡之旅</span>
+            <span>2026/8/27 (五) - 8/31 (一) 日本之旅</span>
           </div>
         </div>
       </div>

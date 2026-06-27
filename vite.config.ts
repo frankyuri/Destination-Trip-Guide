@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
-  const base = env.VITE_BASE_PATH || '/Fukuoka-Trip-Guide/';
+  const base = env.VITE_BASE_PATH || '/Destination-Trip-Guide/';
 
   return {
     base,

@@ -23,7 +23,7 @@ export const exportItineraryJSON = (itinerary: DayItinerary[], planName: string)
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `fukuoka-trip-${planName}-${new Date().toISOString().slice(0, 10)}.json`;
+  link.download = `destination-trip-${planName}-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -130,7 +130,7 @@ export const exportAllICS = (itinerary: DayItinerary[]) => {
 
       return [
         'BEGIN:VEVENT',
-        `UID:${item.id}-${day.date}@fukuokatrip.com`,
+        `UID:${item.id}-${day.date}@destinationtrip.com`,
         `DTSTAMP:${formatICSDate(now)}`,
         `DTSTART:${formatICSDate(startDate)}`,
         `DTEND:${formatICSDate(endDate)}`,
@@ -145,10 +145,10 @@ export const exportAllICS = (itinerary: DayItinerary[]) => {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Fukuoka Trip Guide//EN',
+    'PRODID:-//Destination Trip Guide//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    'X-WR-CALNAME:Fukuoka Trip',
+    'X-WR-CALNAME:Destination Trip',
     ...events,
     'END:VCALENDAR',
   ].join('\r\n');
@@ -157,7 +157,7 @@ export const exportAllICS = (itinerary: DayItinerary[]) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `fukuoka-trip-full.ics`;
+  link.download = `destination-trip-full.ics`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -189,9 +189,9 @@ export const downloadICS = (item: ItineraryItem, dateStr: string) => {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Fukuoka Trip Guide//EN',
+    'PRODID:-//Destination Trip Guide//EN',
     'BEGIN:VEVENT',
-    `UID:${item.id}@fukuokatrip.com`,
+    `UID:${item.id}@destinationtrip.com`,
     `DTSTAMP:${formatICSDate(now)}`,
     `DTSTART:${formatICSDate(startDate)}`,
     `DTEND:${formatICSDate(endDate)}`,

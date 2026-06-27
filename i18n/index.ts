@@ -34,7 +34,7 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   ja: '日本語',
 };
 
-const STORAGE_KEY = 'fukuoka_trip_locale';
+const STORAGE_KEY = 'destination_trip_locale';
 
 // === Context ===
 const I18nContext = createContext<I18nContextValue | null>(null);

@@ -62,7 +62,7 @@ router.get('/:planId/export/json', async (req: AuthRequest, res: Response, next:
       return;
     }
     const filename = plan.planName.replace(/[^\p{L}\p{N}_-]+/gu, '-').slice(0, 50) || 'trip';
-    res.setHeader('Content-Disposition', `attachment; filename="fukuoka-${filename}.json"`);
+    res.setHeader('Content-Disposition', `attachment; filename="destination-${filename}.json"`);
     res.json({ version: 2, exportedAt: new Date().toISOString(), plan: plan.planName, itinerary: formatItinerary(plan) });
   } catch (error) {
     next(error);
@@ -97,7 +97,7 @@ router.get('/:planId/export/ics', async (req: AuthRequest, res: Response, next: 
         const end = addLocalMinutes(isoDate, item.time, 90);
         return [
           'BEGIN:VEVENT',
-          `UID:${escapeICS(item.id)}@fukuoka-trip-guide`,
+          `UID:${escapeICS(item.id)}@destination-trip-guide`,
           `DTSTAMP:${formatUtc(now)}`,
           `DTSTART;TZID=Asia/Tokyo:${localDateTime(isoDate, item.time)}`,
           `DTEND;TZID=Asia/Tokyo:${localDateTime(end.isoDate, end.time)}`,
@@ -109,12 +109,12 @@ router.get('/:planId/export/ics', async (req: AuthRequest, res: Response, next: 
       });
     });
     const content = [
-      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Fukuoka Trip Guide//ZH-TW', 'CALSCALE:GREGORIAN',
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Destination Trip Guide//ZH-TW', 'CALSCALE:GREGORIAN',
       'BEGIN:VTIMEZONE', 'TZID:Asia/Tokyo', 'BEGIN:STANDARD', 'DTSTART:19700101T000000', 'TZOFFSETFROM:+0900', 'TZOFFSETTO:+0900', 'TZNAME:JST', 'END:STANDARD', 'END:VTIMEZONE',
       ...events, 'END:VCALENDAR',
     ].join('\r\n');
     res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
-    res.setHeader('Content-Disposition', 'attachment; filename="fukuoka-trip.ics"');
+    res.setHeader('Content-Disposition', 'attachment; filename="destination-trip.ics"');
     res.send(content);
   } catch (error) {
     next(error);

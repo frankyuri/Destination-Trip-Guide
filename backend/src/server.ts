@@ -5,7 +5,7 @@ validateEnvironment();
 const PORT = Number.parseInt(process.env.PORT || '3001', 10);
 
 const server = app.listen(PORT, () => {
-  console.log(`Fukuoka Trip API running on http://localhost:${PORT}`);
+  console.log(`Destination Trip API running on http://localhost:${PORT}`);
 });
 
 const shutdown = (signal: string) => {

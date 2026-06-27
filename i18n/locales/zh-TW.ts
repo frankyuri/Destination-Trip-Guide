@@ -20,7 +20,7 @@ export const zhTW = {
   import: '匯入',
 
   // === App 主頁 ===
-  appTitle: '福岡自由行',
+  appTitle: '目的地自由行',
   appSubtitle: '完整行程攻略',
   editMode: '編輯模式',
   exitEdit: '結束編輯',
@@ -66,7 +66,7 @@ export const zhTW = {
   weatherForecast: 'Forecast',
   weatherOffline: '無法連線',
   weatherUpdating: 'Updating...',
-  weatherCity: 'Fukuoka',
+  weatherCity: 'Destination',
 
   // === 天氣狀態 ===
   weatherClear: '晴天',
@@ -79,7 +79,7 @@ export const zhTW = {
   weatherThunder: '雷暴',
 
   // === CountdownWidget ===
-  countdownTitle: '福岡之旅',
+  countdownTitle: '目的地之旅',
   countdownDeparture: '出發',
   countdownDays: '天',
   countdownCountingDown: '倒數中',
@@ -136,7 +136,7 @@ export const zhTW = {
   tipJapaneseAddress: '日文地址',
   tipHotelTitle: '關於飯店位置',
   tipHotelDesc: 'Hotel WBF Grande Hakata 位於博多站筑紫口步行範圍內，若搭乘計程車，請出示日文地址給司機看，以免混淆。',
-  tripDateRange: '2/27 (五) - 3/2 (一) 福岡之旅',
+  tripDateRange: '2/27 (五) - 3/2 (一) 目的地之旅',
 
   // === ErrorBoundary ===
   errorTitle: '發生了一點問題',
